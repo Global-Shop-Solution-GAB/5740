@@ -1,0 +1,650 @@
+﻿Program.Sub.ScreenSU.Start
+Gui.Form..Create
+Gui.Form..Size(4050,2100)
+Gui.Form..MinX(0)
+Gui.Form..MinY(0)
+Gui.Form..Position(0,0)
+Gui.Form..BackColor(-2147483633)
+Gui.Form..MousePointer(0)
+Gui.Form..Caption("")
+Gui.Form..MaxButton(False)
+Gui.Form..MinButton(False)
+Gui.Form..Event(UnLoad,Form_UnLoad)
+Gui.Form.ddlAccounts.Create(DropDownList)
+Gui.Form.ddlAccounts.Size(3300,330)
+Gui.Form.ddlAccounts.Position(255,480)
+Gui.Form.lbl1.Create(Label,"Choose a cash account to continue AR upload:",True,3585,255,0,165,180,True,0,"Arial",8,-2147483633,0)
+Gui.Form.cmdSubmit.Create(Button)
+Gui.Form.cmdSubmit.Size(855,375)
+Gui.Form.cmdSubmit.Position(1500,1005)
+Gui.Form.cmdSubmit.Caption("Submit")
+Gui.Form.cmdSubmit.Event(Click,cmdSubmit_Click)
+Gui.f_Upload..Create
+Gui.f_Upload..Caption("GCG 5740 - Import AR Cash Receipt Batch")
+Gui.f_Upload..Size(8490,3075)
+Gui.f_Upload..MinX(0)
+Gui.f_Upload..MinY(0)
+Gui.f_Upload..Position(0,0)
+Gui.f_Upload..BackColor(-2147483633)
+Gui.f_Upload..MaxButton(False)
+Gui.f_Upload..MinButton(False)
+Gui.f_Upload..MousePointer(0)
+Gui.f_Upload..Sizeable(False)
+Gui.f_Upload..Event(UnLoad,f_Upload_UnLoad)
+Gui.f_Upload.txtFile.Create(TextBox,"",True,7215,300,0,210,450,True,0,"Arial",8,-2147483643,1)
+Gui.f_Upload.cmdBrowse.Create(Button)
+Gui.f_Upload.cmdBrowse.Size(435,375)
+Gui.f_Upload.cmdBrowse.Position(7485,405)
+Gui.f_Upload.cmdBrowse.Caption("^")
+Gui.f_Upload.cmdBrowse.Event(Click,cmdBrowse_Click)
+Gui.f_Upload.lbl1.Create(Label,"Select a file to upload as AR cash receipt batch:",True,5070,255,0,210,225,True,0,"Arial",8,-2147483633,0)
+Gui.f_Upload.lbl2.Create(Label,"Select a cash account:",True,3180,255,0,210,1110,True,0,"Arial",8,-2147483633,0)
+Gui.f_Upload.ddlCashAcct.Create(DropDownList)
+Gui.f_Upload.ddlCashAcct.Size(3375,330)
+Gui.f_Upload.ddlCashAcct.Position(210,1335)
+Gui.f_Upload.cmdSubmit.Create(Button)
+Gui.f_Upload.cmdSubmit.Size(855,375)
+Gui.f_Upload.cmdSubmit.Position(3585,1935)
+Gui.f_Upload.cmdSubmit.Caption("Submit")
+Gui.f_Upload.cmdSubmit.Event(Click,cmdSubmit_Click)
+Gui.f_Upload.lbl3.Create(Label,"Select a posting date:",True,2910,255,0,3990,1110,True,0,"Arial",8,-2147483633,0)
+Gui.f_Upload.dtpPostDate.Create(DatePicker)
+Gui.f_Upload.dtpPostDate.Size(1935,285)
+Gui.f_Upload.dtpPostDate.Position(4005,1350)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+v.Global.sLogsPath.Declare
+v.Global.sFilesPath.Declare
+v.Global.sFixedFilesPath.Declare
+v.Global.sBackUpPath.Declare
+v.Global.sText.Declare
+v.Global.sLines.Declare
+v.Global.sGL_Lines.Declare
+v.Global.iBatchLineNumber.Declare
+v.Global.iBatchLineNumberCredit.Declare
+v.Global.sBatchNumber.Declare
+v.Global.sBatchNumberCredit.Declare
+v.Global.sSingleBatchNumber.Declare
+v.Global.sGLAccountDebit.Declare
+v.Global.sGLAccountCredit.Declare
+v.Global.sDateErrorLines.Declare
+v.Global.iBatchLineNumber.Set(1)
+v.Global.iBatchLineNumberCredit.Set(1)
+v.Global.sDateBatch.Declare
+v.Global.sFullDateBatch.Declare
+v.Global.sErrorFolder.Declare(string)
+Program.External.Include.Library("UPLAROP.lib")
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'Author: Daniel Duncan
+'Customer: EMC
+'Program Name: Lockbox AR Import
+'Date Started: 11/1/19
+'Description: This project allows the user to import the contents of a Lockbox file as an AR cash receipts batch.  Eventually, it will also connect to the customer's specified SFTP site and download the Lockbox file before initiating the processing.  
+'Quote: 
+'GAP: 5740
+v.Local.sFilePath.Declare
+f.Intrinsic.Control.Try	
+
+	f.Intrinsic.Control.CallSub(checkCustom)
+	f.Intrinsic.Control.CallSub(GetReceivableAccts)
+	
+	gui.f_Upload..Show	'
+f.Intrinsic.Control.Catch
+	f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+f.Intrinsic.Control.EndTry
+Program.Sub.Main.End
+
+Program.Sub.ErrorMsg.Start
+v.Local.sError.Declare
+
+'Closes ODBC connection, default to connection : "con"
+f.Intrinsic.Control.If(v.ODBC!con.State, =, 1)
+	f.ODBC.Connection!con.Close
+f.Intrinsic.Control.EndIf
+
+'Generic Error message.
+f.Intrinsic.String.Build("Project GCG_5740_LockBoxAR.g2u {0}{0}Subroutine: {1}{0}Error: {2} with Description: {3}", v.Ambient.NewLine, v.Args.CurrentSub, v.Ambient.ErrorNumber, v.Ambient.ErrorDescription, v.Local.sError)
+f.Intrinsic.UI.Msgbox(v.Local.sError)
+f.Intrinsic.Control.End
+Program.Sub.ErrorMsg.End
+
+Program.Sub.checkCustom.Start
+	v.Local.sPath.Declare
+	v.Local.bRet.Declare
+	
+	f.Intrinsic.Control.Try
+		'ERRORS Folder
+		f.Intrinsic.String.Build("{0}\CUSTOM\GCG_5740\ERRORS", v.Caller.GlobalDir, v.Local.sPath)
+		f.Intrinsic.File.DirExists(v.Local.sPath, v.Local.bRet)
+		f.Intrinsic.Control.If(v.Local.bRet, =, false)
+			f.Intrinsic.File.CreateDir(v.Local.sPath)
+		f.Intrinsic.Control.EndIf
+		v.Global.sErrorFolder.Set(v.Local.sPath)
+		
+		'Initizalize errors DT
+		f.Data.DataTable.Create("dtErrors",True)
+		f.Data.DataTable.AddColumn("dtErrors","InvNum","String")
+		f.Data.DataTable.AddColumn("dtErrors","Customer","String")
+		f.Data.DataTable.AddColumn("dtErrors","InvDate","String")
+		f.Data.DataTable.AddColumn("dtErrors","Amount","String")
+		f.Data.DataTable.AddColumn("dtErrors","ErrorMsg","String")
+		
+		'QUEUE folder
+		f.Intrinsic.String.Build("{0}\CUSTOM\GCG_5740\QUEUE", v.Caller.GlobalDir, v.Local.sPath)
+		f.Intrinsic.File.DirExists(v.Local.sPath, v.Local.bRet)
+		f.Intrinsic.Control.If(v.Local.bRet, =, false)
+			f.Intrinsic.File.CreateDir(v.Local.sPath)
+		f.Intrinsic.Control.EndIf
+		v.Global.sFilesPath.Set(v.Local.sPath)
+	f.Intrinsic.Control.Catch
+		f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+	f.Intrinsic.Control.EndTry
+Program.Sub.checkCustom.End
+
+Program.Sub.GetReceivableAccts.Start
+	f.Intrinsic.Control.Try
+		v.Local.sSQL.Declare(string)
+		v.Local.iCnt.Declare(long)
+		'Get the AR account
+		V.Local.sSQL.set("select ACCT_FULL from V_ACCTS_REC_ACCT")
+		f.ODBC.Connection!conx.opencompanyconnection
+		F.ODBC.Connection!conx.OpenLocalRecordsetRO("rstBatch",V.Local.sSQL)
+		F.Intrinsic.Control.if(V.ODBC.conx!rstBatch.EOF,=,False)
+			V.Global.sGLAccountCredit.Set(V.ODBC.conx!rstBatch.FieldValtrim!ACCT_FULL)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.UI.Msgbox("Receivable account not found in company options, ending program")
+			f.Intrinsic.Control.End
+		F.Intrinsic.Control.EndIf
+		F.ODBC.conx!rstBatch.Close
+		
+		'Get the cash account		
+		V.Local.sSQL.set("select GL_CASH_ACCT from V_CASH_ACCOUNT")
+		f.Data.DataTable.CreateFromSQL("dtCashAccts","conx",v.Local.sSQL)
+		F.Intrinsic.Control.if(v.DataTable.dtCashAccts.RowCount,>,0)
+			f.Intrinsic.Control.For(v.Local.iCnt,0,v.DataTable.dtCashAccts.RowCount--,1)
+				gui.f_Upload.ddlCashAcct.additem(v.DataTable.dtCashAccts(v.Local.iCnt).GL_CASH_ACCT!FieldVal)
+			f.Intrinsic.Control.Next(v.Local.iCnt)
+			f.Intrinsic.Control.If(v.DataTable.dtCashAccts.RowCount,=,1)
+				gui.f_Upload.ddlCashAcct.Text(v.DataTable.dtCashAccts(0).GL_CASH_ACCT!FieldVal)
+			f.Intrinsic.Control.EndIf
+			
+'			gui.Form..show
+'			gui.Form..WaitForDismiss
+'			v.Global.sGLAccountDebit.Set(v.Screen.Form!ddlAccounts.Value)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.UI.Msgbox("Cash account not found in company options, ending program")
+			f.Intrinsic.Control.End
+		F.Intrinsic.Control.EndIf
+		f.ODBC.Connection!conx.close
+	f.Intrinsic.Control.Catch
+		f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+	f.Intrinsic.Control.EndTry
+Program.Sub.GetReceivableAccts.End
+
+Program.Sub.Form_UnLoad.Start
+	f.Intrinsic.Control.End
+Program.Sub.Form_UnLoad.End
+
+Program.Sub.cmdSubmit_Click.Start
+	v.Local.bExists.Declare(boolean)
+	f.Intrinsic.Control.If(v.Screen.f_Upload!txtFile.text,!=,"")
+		f.Intrinsic.File.Exists(v.Screen.f_Upload!txtFile.text,v.Local.bExists)
+		f.Intrinsic.Control.If(v.Local.bExists)
+			f.Intrinsic.Control.If(v.Screen.f_Upload!ddlCashAcct.Value,!=,"")
+				f.Intrinsic.Control.CallSub(CreateUpload_New)
+				f.Intrinsic.Control.End
+			f.Intrinsic.Control.Else
+				f.Intrinsic.UI.Msgbox("Select a cash account to begin processing")
+			f.Intrinsic.Control.EndIf
+		f.Intrinsic.Control.Else
+			f.Intrinsic.UI.Msgbox("Select a valid file to begin processing","Error >> File Does Not Exist")
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.Else
+		f.Intrinsic.UI.Msgbox("Select a file to begin processing","Error >> File Path Missing")
+	f.Intrinsic.Control.EndIf
+Program.Sub.cmdSubmit_Click.End
+
+Program.Sub.getBatchNumber.Start
+v.Local.sBatch.Declare(string)
+v.Local.sTemp.Declare(string)
+v.Local.iNumber.Declare(long)
+v.Local.sChar.Declare(string)
+v.Local.sSQL.Declare(string)
+v.Local.sBegDate.Declare(string)
+v.Local.sEndDate.Declare(string)
+v.Local.iYear.Declare(long)
+v.Local.sRet.Declare(string)
+v.Local.sBatchNum.Declare(string)
+v.Local.iBatch.Declare(long)
+f.Intrinsic.Control.Try
+
+	Function.Intrinsic.UI.InvokeWaitDialog("Upload in progress please wait ...")
+	'Set the dates
+	f.Intrinsic.Date.Year(V.Ambient.Date,v.Local.iYear)
+	f.Intrinsic.String.Build("{0}-01-01",v.Local.iYear.String,v.Local.sBegDate)
+	f.Intrinsic.String.Build("{0}-12-31",v.Local.iYear.String,v.Local.sEndDate)
+	'Set the SQL statement
+	f.Intrinsic.String.Build("select top 1 RIGHT(batch_num,4) AS BATCH_NUM from gcg_5740_batches where left(batch_num,1) = 'Q' and date_posted between '{0}' and '{1}' order by batch_num desc",v.Local.sBegDate,v.Local.sEndDate,v.local.sSQL)
+	'Get the last batch number and increment one
+	f.ODBC.Connection!con.opencompanyconnection
+		f.ODBC.Connection!con.executeandreturn(v.Local.sSQL,v.Local.sRet)
+	f.ODBC.Connection!con.close
+	
+	f.Intrinsic.Control.If(v.Local.sRet,=,"")
+		'If nothing returned, set the initial batch number. 
+		v.Local.sBatchNum.Set("Q0001")
+		'v.Global.sBatchNumberCredit.Set("Q0002")
+	f.Intrinsic.Control.ElseIf(v.Local.sRet,=,"9999")
+		f.Intrinsic.UI.Msgbox("Batch Q9999 reached.  No more batches can be processed.  Contact Global Shop for assistance.","5708 AR Upload Error")
+		f.Intrinsic.Control.End
+	f.Intrinsic.Control.Else
+		'Increment by one and continue
+		f.Intrinsic.Math.Add(v.Local.sRet.Long,1,v.Local.iBatch)
+		f.Intrinsic.String.lpad(v.Local.iBatch.String,"0",4,v.Local.sBatchNum)
+		f.Intrinsic.String.Build("Q{0}",v.Local.sBatchNum,v.Global.sBatchNumber)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Catch
+	f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+f.Intrinsic.Control.EndTry
+Program.Sub.getBatchNumber.End
+
+Program.Sub.cmdBrowse_Click.Start
+	f.Intrinsic.Control.Try
+		'Windows open file dialog
+		v.Local.sSelectedFileName.Declare(string)
+		
+		F.Intrinsic.UI.ShowOpenFileDialog("", "","524288",v.Local.sSelectedFileName)
+		f.Intrinsic.Control.If(v.Local.sSelectedFileName,!=,"***CANCEL***")
+			gui.f_Upload.txtFile.Text(v.Local.sSelectedFileName)
+		F.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.Catch
+		f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+	f.Intrinsic.Control.EndTry
+Program.Sub.cmdBrowse_Click.End
+
+Program.Sub.f_Upload_UnLoad.Start
+	f.Intrinsic.Control.End
+Program.Sub.f_Upload_UnLoad.End
+
+Program.Sub.writeUPLGDETL_File.Start
+v.Local.sLine.Declare
+v.Local.iCnt.Declare
+v.Local.sTemp.Declare
+v.Local.sBatch.Declare
+v.Local.sBatchNumber.Declare
+v.Local.sEmpty.Declare
+v.Local.sGL_Account.Declare
+v.Local.sPostDate.Declare
+v.Local.iTerms.Declare
+v.Local.dTempDate.Declare(date,)
+v.Local.sCustomer.Declare
+v.Local.sFilter.Declare
+v.Local.sTransactionType.Declare
+v.Local.bDateError.Declare
+v.Local.fAmount.Declare
+v.Local.sCustName.Declare(string)
+v.Local.sBatchLine.Declare(string)
+v.Local.dPostDate.Declare(date)
+
+f.Intrinsic.Control.Try	
+
+	v.Local.sGL_Account.Set(v.Args.passedGL)
+	v.Local.sTransactionType.Set(v.Args.passedTransType)
+
+	v.Local.iCnt.Set(v.Args.passedCnt)
+	
+'	f.Intrinsic.String.Split(v.Ambient.Date.PervasiveDate, "-", v.Local.sTemp)
+'	f.Intrinsic.String.Join(v.Local.sTemp, , v.Local.sPostDate)
+	v.Local.dPostDate.Set(v.Screen.f_Upload!dtpPostDate.Value)
+	
+	'GL Account (15 chars)
+	f.Intrinsic.String.RPad(V.Local.sGL_Account, " ", 15, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Post Date (8 chars - YYYYMMDD)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.dPostDate.formatyyyymmdd, v.Local.sLine)
+	'f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Global.sFullDateBatch, v.Local.sLine)
+	'Transaction Batch Number (5 chars)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Args.passedBatchNumber, v.Local.sLine)
+	'Transaction Batch Line	(5 chars)
+	f.Intrinsic.String.RPad(v.Local.iCnt.String, " ", 5, v.Local.sBatchLine)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sBatchLine, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Transaction Voucher Number
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 7, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Reference
+	f.Intrinsic.String.RPad(v.Args.CheckNo," ",15,v.Local.sTemp)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sTemp, v.Local.sLine)
+	v.Global.sText.Set("")
+	'Amount
+	v.Local.fAmount.Set(v.args.Amount)
+	f.Intrinsic.Math.Mult(v.Local.fAmount, v.Args.passedMult, v.Local.fAmount)
+	f.Intrinsic.String.LPad(v.Local.fAmount.String, " ", 16, v.Global.sText)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Global.sText, v.Local.sLine)
+	v.Global.sText.Set("")
+	'Description  
+	f.Intrinsic.String.RPad(v.Args.custName," ",30,v.Local.sCustName)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sCustName.left30, v.Local.sLine)
+	v.Global.sText.Set("")
+	'Application Type
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 2, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Transaction Type
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sTransactionType, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Customer ID
+	f.Intrinsic.String.LPad(v.Args.CustID," ",7,v.Local.sCustomer)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sCustomer, v.Local.sLine)
+	v.Global.sText.Set("")
+	'Vendor ID
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 7, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'PO Number
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 7, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Invoice Number
+	f.Intrinsic.String.RPad(v.Args.InvoiceNumber, " ", 15, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+
+	'Invoice Date
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Args.InvDate, v.Local.sLine)
+	v.Global.sText.Set("")
+	
+	'Invoice Due Date	
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine,  v.Args.InvDate, v.Local.sLine)
+	v.Global.sText.Set("")
+	'Check System
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 2, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Check Number
+	f.Intrinsic.String.RPad(v.Args.CheckNo, " ", 6, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Check Date
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 8, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Check Gross Amount
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 16, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Check Discount Amount
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 11, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Check Net Amount
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 16, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")		
+	
+	f.Intrinsic.Control.If(v.Local.bDateError)
+		f.Intrinsic.Control.If(v.Global.sDateErrorLines, =, "")
+			v.Global.sDateErrorLines.Set(v.Local.sLine)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1}{2}", v.Global.sGL_Lines, v.Ambient.NewLine, v.Local.sLine, v.Global.sDateErrorLines)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.Else
+		f.Intrinsic.Control.If(v.Global.sGL_Lines, =, "")
+			v.Global.sGL_Lines.Set(v.Local.sLine)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1}{2}", v.Global.sGL_Lines, v.Ambient.NewLine, v.Local.sLine, v.Global.sGL_Lines)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Catch
+	f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+f.Intrinsic.Control.EndTry
+Program.Sub.writeUPLGDETL_File.End
+
+Program.Sub.getSingleBatchNumber.Start
+v.Local.sBatch.Declare
+v.Local.sTemp.Declare
+v.Local.iNumber.Declare
+v.Local.sChar.Declare
+v.Local.sSQL.Declare
+f.Intrinsic.Control.Try
+	f.ODBC.Connection!con.OpenCompanyConnection
+		f.ODBC.Connection!con.ExecuteAndReturn("select batch_num from GCG_5740_BATCHES WHERE left(Batch_num,1)='Q'", v.Local.sBatch)
+	f.ODBC.Connection!con.Close
+	
+	f.Intrinsic.Control.If(v.Local.sBatch, =, "Q9999")
+		f.Intrinsic.UI.Msgbox("You Have reached the max number of Batches, Please Contact Global Shop.")
+		f.Intrinsic.Control.End
+	f.Intrinsic.Control.EndIf
+	
+	f.ODBC.Connection!con.OpenCompanyConnection
+		f.ODBC.Connection!con.Execute("delete from gcg_5740_batches where left(Batch_num,1)='Q';")
+	f.ODBC.Connection!con.Close
+	
+	f.Intrinsic.Control.If(v.Local.sBatch.Trim, =, "")
+		 f.ODBC.Connection!con.OpenCompanyConnection
+		 	f.Intrinsic.String.Build("Insert into  GCG_5740_BATCHES (BATCH_NUM, date_posted) Values ('Q0001', '{0}')",v.Ambient.Date.PervasiveDate,v.Local.sSQL)
+			f.ODBC.Connection!con.Execute(v.Local.sSQL)
+		f.ODBC.Connection!con.Close
+		
+		v.Global.sSingleBatchNumber.Set("Q0001")
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Right(v.Local.sBatch.Trim, 4, v.Local.sTemp)
+		f.Intrinsic.String.Left(v.Local.sBatch.Trim, 1, v.Local.sChar)
+		f.Intrinsic.Control.If(v.Local.sTemp.IsNumeric)
+			v.Local.iNumber.Set(v.Local.sTemp)
+			f.Intrinsic.Math.Add(v.Local.iNumber, 1, v.Local.iNumber)
+			f.Intrinsic.String.LPad(v.Local.iNumber, "0", 4, v.Local.sTemp)
+			f.Intrinsic.String.Build("{0}{1}", v.Local.sChar, v.Local.sTemp, v.Global.sSingleBatchNumber)
+						
+			f.ODBC.Connection!con.OpenCompanyConnection
+				f.Intrinsic.String.Build("Insert into  GCG_5740_BATCHES (BATCH_NUM, date_posted) Values ('{0}', '{1}')",v.Global.sSingleBatchNumber,v.Ambient.Date.PervasiveDate,v.Local.sSQL)
+				f.ODBC.Connection!con.Execute(v.Local.sSQL)
+			f.ODBC.Connection!con.Close
+		
+		f.Intrinsic.Control.Else
+			f.Intrinsic.UI.Msgbox("No Batch Found")
+			f.Intrinsic.Control.End
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Catch
+	f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+f.Intrinsic.Control.EndTry
+Program.Sub.getSingleBatchNumber.End
+
+Program.Sub.CreateUpload_New.Start
+	f.Intrinsic.Control.Try
+		v.Local.sText.Declare(string)
+		v.Local.sTemp.Declare(string)
+		v.Local.iCnt.Declare(long)
+		V.Local.sFile.Declare(string)
+		V.Local.sParam.Declare(string)
+		v.local.sIncomingFile.Declare(string)
+		v.Local.sCustID.Declare(string)
+		v.Local.sCheckNo.Declare(string)
+		v.Local.sSQL.Declare(string)
+		V.Local.bExists.Declare(boolean)
+		v.Local.sInvAmt.Declare(string)
+		v.Local.sInvAmtGL.Declare(string)
+		v.Local.sInvNum.Declare(string)
+		v.Local.sInvDate.Declare(string)
+		v.Local.sInvDateGL.Declare(string)
+		v.Local.iBatchLineNumber.Declare(long,0)
+		v.Local.fAmount.Declare(float)
+		v.Local.sCustName.Declare(string)
+		v.Local.sErrorMsg.Declare(string)
+		v.Local.sErrorText.Declare(string)
+		v.Local.sTransDate.Declare(string)
+		
+		f.Intrinsic.UI.InvokeWaitDialog("Building data queue for upload","GCG 5740")
+		'Incoming file format:
+	'	       01 FIRST-UNION-DETAIL-RECORD.
+	'           03 DETAIL-RECORD-TYPE          PIC 9(1).
+	'           03 DETAIL-LOCKBOX-NO           PIC 9(7).
+	'           03 DETAIL-DEPOSIT-DATE         PIC 9(6).
+	'           03 DETAIL-BATCH-NO             PIC 9(3).
+	'           03 DETAIL-CUST-DDA             PIC 9(15).
+	'           03 DETAIL-ORIGIN               PIC 9(10).
+	'           03 DETAIL-CHECK-DATE-MM        PIC 9(2).
+	'           03 DETAIL-CHECK-DATE-DD        PIC 9(2).
+	'           03 DETAIL-CHECK-DATE-YY        PIC 9(2).
+	'           03 DETAIL-PAYEE-NAME           PIC X(26).
+	'           03 DETAIL-CHECK-AMT            PIC 9(8)V99.
+	'           03 DETAIL-CHECK-NO             PIC 9(8).
+	'           03 DETAIL-PAYOR-NAME           PIC X(26).
+	'           03 FILLER                      PIC X(15).
+	
+	'       01 FIRST-UNION-OVERFLOW-RECORD.
+	'           03 OVERFLOW-RECORD-TYPE        PIC 9(1).
+	'           03 OVERFLOW-BATCH-NUMBER       PIC 9(3).
+	'           03 OVERFLOW-OVERFLOW-SEQ-NO    PIC 9(2).
+	'           03 OVERFLOW-LAST-OVFL-FLAG     PIC 9(1).
+	'16INV      03 OVERFLOW-INVOICE-NO         PIC X(16).
+	'           03 OVERFLOW-INVOICE-DATE-MM    PIC 9(2).
+	'           03 OVERFLOW-INVOICE-DATE-DD    PIC 9(2).
+	'           03 OVERFLOW-INVOICE-DATE-YY    PIC 9(2).
+	'           03 OVERFLOW-DISCOUNT-AMT       PIC 9(6)V99.
+	'           03 OVERFLOW-NET-INVOICE-AMT    PIC S9(10)V99
+	'                                          TRAILING SEPARATE.
+	'16INV      03 FILLER                      PIC X(82).
+		
+		'Get the batch number to use
+		f.Intrinsic.Control.CallSub(getSingleBatchNumber)
+		
+		'Format the transaction date for aging
+		f.Intrinsic.string.Format(v.Ambient.Date,"mmddyy",v.Local.sTransDate)
+		
+		'Read in file to string
+		f.Intrinsic.File.File2String(v.Screen.f_Upload!txtFile.text,v.Local.sIncomingFile)
+		'f.Intrinsic.String.Split(v.Local.sIncomingFile,v.Ambient.,v.Local.sIncomingFile)
+		'Original position was 134
+		'f.Intrinsic.String.LimitSplit(v.Local.sIncomingFile,134,v.Local.sIncomingFile)
+		f.Intrinsic.String.Split(v.Local.sIncomingFile,v.ASCII.10,v.Local.sIncomingFile)
+		
+		'Loop through file and append contents to output string
+		f.Intrinsic.Control.For(v.Local.iCnt,0,v.Local.sIncomingFile.UBound,1)
+			F.Intrinsic.UI.ChangeWaitStatus("Building data queue for upload",V.Local.iCnt,0,v.Local.sIncomingFile.UBound)
+			F.Intrinsic.String.REPLACE(V.Local.sIncomingFile(V.Local.iCnt),V.Ambient.NewLine,"",V.Local.sIncomingFile(V.Local.iCnt))
+			f.Intrinsic.String.Left(v.Local.sIncomingFile(v.Local.iCnt),1,v.Local.sTemp)
+			v.Local.sErrorMsg.Set("")
+			'Logic on first character of the line:
+			'	6 = Header record
+			'	4 = Detail record
+			
+			f.Intrinsic.Control.If(v.Local.sTemp,=,"6")
+				'Get the check number
+				f.Intrinsic.String.Mid(v.Local.sIncomingFile(v.Local.iCnt),81,8,v.Local.sTemp)
+				f.Intrinsic.String.RPad(v.Local.sTemp," ",8,v.Local.sCheckNo)
+			f.Intrinsic.Control.Elseif(v.Local.sTemp,=,"4")
+				'Start new line
+				f.Intrinsic.Math.add(v.Local.iBatchLineNumber,1,v.Local.iBatchLineNumber)
+				f.Intrinsic.Control.If(v.Local.sText,!=,"")
+					f.Intrinsic.String.Build("{0}{1}",v.Local.sText,v.Ambient.NewLine,v.Local.sText)
+				f.Intrinsic.Control.EndIf
+				
+				'Write the invoice number
+				f.Intrinsic.String.Mid(v.Local.sIncomingFile(v.Local.iCnt),8,16,v.Local.sInvNum)
+				
+				'Get the customer name, convert it to the corresponding ID
+				f.Intrinsic.String.Build("select top 1 CUSTOMER from v_ar_open_items where invoice like '{0}%';",v.Local.sInvNum.Trim,v.Local.sSQL)
+				f.ODBC.Connection!con.opencompanyconnection
+					f.ODBC.Connection!CON.executeandreturn(v.Local.sSQL,v.Local.sCustID)
+				f.ODBC.Connection!con.close
+				
+				'Write the invoice date from the file
+				f.Intrinsic.String.Mid(v.Local.sIncomingFile(v.Local.iCnt),24,4,v.Local.sTemp)
+				f.Intrinsic.String.Build("{0}{1}",v.Local.sTemp.left2,v.Local.sTemp.right2,v.Local.sInvDate)
+				f.Intrinsic.String.Mid(v.Local.sIncomingFile(v.Local.iCnt),28,2,v.Local.sTemp)
+				f.Intrinsic.String.Build("20{0}{1}",v.Local.sTemp,v.Local.sInvDate,v.Local.sInvDateGL)
+				f.Intrinsic.String.Mid(v.Local.sIncomingFile(v.Local.iCnt),24,6,v.Local.sInvDate)
+				
+				'Write applied amount				
+				f.Intrinsic.String.Mid(v.Local.sIncomingFile(v.Local.iCnt),40,10,v.Local.sTemp)
+				f.Intrinsic.String.RTrim(v.Local.sTemp,v.Local.sTemp)
+				f.Intrinsic.String.Build("{0}.{1}",v.Local.sTemp.left8,v.Local.sTemp.right2,v.Local.sInvAmt)
+				'f.Intrinsic.String.Format(v.Local.sTemp,"####.00",v.Local.fAmount)
+				
+				'Check for errors
+				f.Intrinsic.Control.If(v.Local.sInvAmt.Float,<,0)
+					f.Intrinsic.String.Build("Invoice {0} has a negative amount and cannot be processed as a credit in cash receipts.",v.Local.sInvNum.Trim,v.Local.sErrorMsg)
+					f.Data.DataTable.AddRow("dtErrors","InvNum",v.Local.sInvNum.Trim,"Customer",v.Local.sCustID,"InvDate",v.Local.sInvDate,"Amount",v.Local.sInvAmt,"ErrorMsg",v.Local.sErrorMsg)
+				f.Intrinsic.Control.ElseIf(v.Local.sCustID,=,"")
+					f.Intrinsic.String.Build("Invoice {0} does not exist in AR open items.",v.Local.sInvNum.Trim,v.Local.sErrorMsg)
+					f.Data.DataTable.AddRow("dtErrors","InvNum",v.Local.sInvNum.Trim,"Customer",v.Local.sCustID,"InvDate",v.Local.sInvDate,"Amount",v.Local.sInvAmt,"ErrorMsg",v.Local.sErrorMsg)					
+				f.Intrinsic.Control.Else
+					'Flip the sign from positive to negative to post the credit to AR Open Items
+					f.Intrinsic.String.Build("-{0}",v.Local.sInvAmt,v.Local.sInvAmt)
+					
+					'Write to UPLAROP
+					f.Data.DataTable.AddRow("UPLAROP", "CustNum", v.Local.sCustID, "InvNum", v.Local.sInvNum.LTrim,"TransCode", "11", "BatchNum",  v.Global.sSingleBatchNumber, "BatchLine", v.Local.iBatchLineNumber,"InvDate", v.Local.sInvDate, "InvTotal", v.Local.sInvAmt.float, "GLAcct", v.Global.sGLAccountCredit,"InvAmt",v.Local.sInvAmt.float,"TransDate",v.Local.sTransDate)
+					
+					'Write to GL batch
+					f.Intrinsic.Control.CallSub(writeUPLGDETL_File, passedCnt, v.Local.iCnt, passedGL, v.Global.sGLAccountCredit, passedTransType, "11", passedMult, 1, passedBatchNumber, v.Global.sSingleBatchNumber, InvoiceNumber, v.Local.sInvNum.LTrim, Amount, v.Local.sInvAmt.float,CustName, v.Local.sCustName, CustID, v.Local.sCustID, InvDate, v.Local.sInvDateGL,CheckNo,v.Local.sCheckNo)
+					f.Intrinsic.Control.CallSub(writeUPLGDETL_File, passedCnt, v.Local.iCnt, passedGL, v.screen.f_Upload!ddlCashAcct.Text, passedTransType, "11", passedMult, -1, passedBatchNumber, v.Global.sSingleBatchNumber, InvoiceNumber, v.Local.sInvNum.LTrim, Amount, v.Local.sInvAmt.float,CustName, v.Local.sCustName, CustID, v.Local.sCustID, InvDate, v.Local.sInvDateGL,CheckNo,v.Local.sCheckNo)
+				f.Intrinsic.Control.EndIf
+			f.Intrinsic.Control.EndIf
+		f.Intrinsic.Control.Next(v.Local.iCnt)
+		
+		'If some records were read in, process as batch
+		f.Intrinsic.Control.If(v.Global.sGL_Lines,!=,"")
+			F.Intrinsic.UI.ChangeWaitStatus("Uploading batch contents to AR and GL",0,0,2)
+			'Create the name for the file
+			f.Intrinsic.String.Build("{0}\GLDETAIL.TXT", v.Caller.FilesDir,V.Local.sFile)
+			F.Intrinsic.File.Exists(V.Local.sFile,V.Local.bExists)
+			F.Intrinsic.Control.If(V.Local.bExists,=,True)
+				F.Intrinsic.File.DeleteFile(V.Local.sFile)
+			F.Intrinsic.Control.EndIf
+			
+			'Export the text to a file
+			F.Intrinsic.File.String2File(V.Local.sFile,V.Global.sGL_Lines)
+			
+			'upload
+			F.Intrinsic.UI.ChangeWaitStatus("Uploading batch contents to AR and GL",1,0,2)
+			f.Intrinsic.Control.If(v.DataTable.UPLAROP.RowCount, >, 0)
+				f.Intrinsic.Control.CallSub(UPLAROPSync)
+			f.Intrinsic.Control.EndIf
+			
+			F.Intrinsic.UI.ChangeWaitStatus("Uploading batch contents to AR and GL",2,0,2)
+			'/U option runs the program screenless
+			f.Global.General.CallWrapperSync(50, "UPLGDETL/U")
+			'/A options runs with screens and the debug at the end
+			'f.Global.General.CallWrapperSync(50, "UPLGDETL/A")
+			
+			f.Intrinsic.UI.CloseWaitDialog
+			f.Intrinsic.String.Build("Batch {0} uploaded successfully.",v.Global.sSingleBatchNumber,v.Local.sSQL)
+			f.Intrinsic.UI.Msgbox(v.Local.sSQL,"Success")
+		f.Intrinsic.Control.EndIf
+		
+		'If any errors, write file
+		f.Intrinsic.Control.If(v.DataTable.dtErrors.RowCount,>,0)
+			v.Local.iCnt.Set(0)
+			f.Intrinsic.Control.For(v.Local.iCnt,0,v.DataTable.dtErrors.RowCount--,1)
+				f.Intrinsic.Control.If(v.Local.sErrorText,<>,"")
+					f.Intrinsic.String.Build("{0}{1}",v.Local.sErrorText,v.Ambient.NewLine,v.Local.sErrorText)
+				f.Intrinsic.Control.EndIf
+				f.Intrinsic.String.Build("{6}{0}{1}{2}{1}{3}{1}{4}{1}{5}",v.DataTable.dtErrors(v.Local.iCnt).InvDate!FieldValTrim,v.Ambient.Tab,v.DataTable.dtErrors(v.Local.iCnt).InvNum!FieldValTrim,v.DataTable.dtErrors(v.Local.iCnt).Amount!FieldValTrim,v.DataTable.dtErrors(v.Local.iCnt).Customer!FieldValTrim,v.DataTable.dtErrors(v.Local.iCnt).ErrorMsg!FieldValTrim,v.Local.sErrorText,v.Local.sErrorText)
+			f.Intrinsic.Control.Next(v.Local.iCnt)
+			f.Intrinsic.String.Build("*/*THE FOLLOWING ERRORS WERE ENCOUNTERED DURING PROCESSING:*/*{1}{1}Date{0}Invoice{0}Amount{0}Customer{0}ErrorDesc{1}{2}",",",v.Ambient.NewLine,v.Local.sErrorText,v.Local.sErrorText)
+			f.Intrinsic.String.DateString(v.Ambient.Date,v.Local.sTemp)
+			f.Intrinsic.String.TimeStringSec(v.Ambient.Time,v.Local.sText)
+			
+			f.Intrinsic.String.Build("{0}\{1}{2}Errors.txt",v.Global.sErrorFolder,v.Local.sTemp,v.Local.sText,v.Global.sErrorFolder)
+			f.Intrinsic.File.String2File(v.Global.sErrorFolder,v.Local.sErrorText)
+			'Open the file for the user to view contents
+			f.Intrinsic.Task.ShellExec(handle, "open",v.Global.sErrorFolder,"","", 0)
+		f.Intrinsic.Control.EndIf
+		
+		f.Intrinsic.Control.End
+	f.Intrinsic.Control.Catch
+		f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+	f.Intrinsic.Control.EndTry
+Program.Sub.CreateUpload_New.End
+
+Program.Sub.Comments.Start
+${$5$}$3.0.0.0$}$1
+${$6$}$dduncan$}$20200227085330853$}$r0o+00bj735YsiGsQ60YIo/Zb+26OZQGTUnOMQT2fALFM3tTO9ghSzL7d08UlPlO4lUOF7z4V7s=
+Program.Sub.Comments.End
