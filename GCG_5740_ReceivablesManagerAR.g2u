@@ -1,0 +1,1395 @@
+Program.Sub.ScreenSU.Start
+Gui.Form..Create
+Gui.Form..Size(4050,2100)
+Gui.Form..MinX(0)
+Gui.Form..MinY(0)
+Gui.Form..Position(0,0)
+Gui.Form..BackColor(-2147483633)
+Gui.Form..MousePointer(0)
+Gui.Form..Caption("")
+Gui.Form..MaxButton(False)
+Gui.Form..MinButton(False)
+Gui.Form..Event(UnLoad,Form_UnLoad)
+Gui.Form.ddlAccounts.Create(DropDownList)
+Gui.Form.ddlAccounts.Size(3300,330)
+Gui.Form.ddlAccounts.Position(255,480)
+Gui.Form.lbl1.Create(Label,"Choose a cash account to continue AR upload:",True,3585,255,0,165,180,True,0,"Arial",8,-2147483633,0)
+Gui.Form.cmdSubmit.Create(Button)
+Gui.Form.cmdSubmit.Size(855,375)
+Gui.Form.cmdSubmit.Position(1500,1005)
+Gui.Form.cmdSubmit.Caption("Submit")
+Gui.Form.cmdSubmit.Event(Click,cmdSubmit_Click)
+Gui.f_Upload..Create
+Gui.f_Upload..Caption("GCG 5740 - Import AR Cash Receipt Batch from Lockbox")
+Gui.f_Upload..Size(16785,10695)
+Gui.f_Upload..MinX(0)
+Gui.f_Upload..MinY(0)
+Gui.f_Upload..Position(0,0)
+Gui.f_Upload..BackColor(-2147483633)
+Gui.f_Upload..MousePointer(0)
+Gui.f_Upload..Event(UnLoad,f_Upload_UnLoad)
+Gui.f_Upload..Event(Resize,f_Upload_Resize)
+Gui.f_Upload.txtFile.Create(TextBox,"",True,7215,300,0,210,1455,True,0,"Arial",8,-2147483643,1)
+Gui.f_Upload.cmdBrowse.Create(Button)
+Gui.f_Upload.cmdBrowse.Size(435,375)
+Gui.f_Upload.cmdBrowse.Position(7530,1425)
+Gui.f_Upload.cmdBrowse.Caption("^")
+Gui.f_Upload.cmdBrowse.Event(Click,cmdBrowse_Click)
+Gui.f_Upload.lbl1.Create(Label,"Select a file to upload as AR cash receipt batch:",True,5070,255,0,210,1245,True,0,"Arial",8,-2147483633,0)
+Gui.f_Upload.lbl2.Create(Label,"Select a cash account:",True,2580,255,0,210,345,True,0,"Arial",8,-2147483633,0)
+Gui.f_Upload.ddlCashAcct.Create(DropDownList)
+Gui.f_Upload.ddlCashAcct.Size(2865,330)
+Gui.f_Upload.ddlCashAcct.Position(210,555)
+Gui.f_Upload.ddlCashAcct.Event(LostFocus,ddlCashAcct_LostFocus)
+Gui.f_Upload.lbl3.Create(Label,"Select a posting date:",True,1935,255,0,3420,345,True,0,"Arial",8,-2147483633,0)
+Gui.f_Upload.dtpPostDate.Create(DatePicker)
+Gui.f_Upload.dtpPostDate.Size(1935,285)
+Gui.f_Upload.dtpPostDate.Position(3420,570)
+Gui.f_Upload.GsGcDisplay.Create(GsGridControl)
+Gui.f_Upload.GsGcDisplay.Size(16515,8190)
+Gui.f_Upload.GsGcDisplay.Position(30,1935)
+Gui.f_Upload.GsGcDisplay.Anchor(15)
+Gui.f_Upload.frame1.Create(Frame)
+Gui.f_Upload.frame1.Size(1845,1755)
+Gui.f_Upload.frame1.Position(14685,90)
+Gui.f_Upload.frame1.Anchor(9)
+Gui.f_Upload.frame1.Caption("Controls")
+Gui.f_Upload.cmdSubmit.Create(Button)
+Gui.f_Upload.cmdSubmit.Size(1575,375)
+Gui.f_Upload.cmdSubmit.Position(135,765)
+Gui.f_Upload.cmdSubmit.Caption("Post to GL")
+Gui.f_Upload.cmdSubmit.Event(Click,cmdSubmit_Click)
+Gui.f_Upload.cmdSubmit.Parent("frame1")
+Gui.f_Upload.cmdSubmit.ToolTip("Posts any rows that are OKToPost and without a status of POSTED.")
+Gui.f_Upload.cmdProcFile.Create(Button)
+Gui.f_Upload.cmdProcFile.Size(1575,375)
+Gui.f_Upload.cmdProcFile.Position(135,285)
+Gui.f_Upload.cmdProcFile.Parent("frame1")
+Gui.f_Upload.cmdProcFile.Caption("Process File")
+Gui.f_Upload.cmdProcFile.Event(Click,cmdProcFile_Click)
+Gui.f_Upload.cmdProcFile.ToolTip("Thsi button uploads the contents of the selected file to the grid.")
+Gui.f_Upload.cmdExport.Create(Button)
+Gui.f_Upload.cmdExport.Size(1575,375)
+Gui.f_Upload.cmdExport.Position(135,1260)
+Gui.f_Upload.cmdExport.Parent("frame1")
+Gui.f_Upload.cmdExport.Caption("Export to Excel")
+Gui.f_Upload.cmdExport.Event(Click,cmdExport_Click)
+Gui.f_Upload.cmdExport.ToolTip("Exports the grid to Excel")
+Gui.f_Upload.lblStatus.Create(Label,"Connecting to Wells Fargo site...",False,2445,255,0,8070,1350,True,0,"Arial",8,-2147483633,0)
+Gui.f_Upload.pbStatus.Create(ProgressBar)
+Gui.f_Upload.pbStatus.Visible(False)
+Gui.f_Upload.pbStatus.Size(2355,255)
+Gui.f_Upload.pbStatus.Position(8115,1575)
+Gui.f_Upload.picLogo.Create(PictureBox)
+Gui.f_Upload.picLogo.Size(4125,960)
+Gui.f_Upload.picLogo.Position(5595,240)
+Gui.f_Upload.GsGcGLData.Create(GsGridControl)
+Gui.f_Upload.GsGcGLData.Size(4005,1665)
+Gui.f_Upload.GsGcGLData.Position(10575,135)
+Gui.f_Upload.GsGcGLData.Anchor(9)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+v.Global.sLogsPath.Declare
+v.Global.sFilesPath.Declare
+v.Global.sFixedFilesPath.Declare
+v.Global.sBackUpPath.Declare
+v.Global.sText.Declare
+v.Global.sLines.Declare
+v.Global.sGL_Lines.Declare
+v.Global.iBatchLineNumber.Declare
+v.Global.iBatchLineNumberCredit.Declare
+v.Global.sBatchNumber.Declare
+v.Global.sBatchNumberCredit.Declare
+v.Global.sSingleBatchNumber.Declare
+v.Global.sGLAccountDebit.Declare
+v.Global.sGLAccountCredit.Declare
+v.Global.sDateErrorLines.Declare
+v.Global.iBatchLineNumber.Set(1)
+v.Global.iBatchLineNumberCredit.Set(1)
+v.Global.sDateBatch.Declare
+v.Global.sFullDateBatch.Declare
+v.Global.sErrorFolder.Declare(string)
+v.Global.sDiscountAcct.Declare(string)
+Program.External.Include.Library("UPLAROP.lib")
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'Author: Daniel Duncan
+'Customer: EMC
+'Program Name: Lockbox AR Import
+'Date Started: 11/1/19
+'Description: This project allows the user to import the contents of a Lockbox file as an AR cash receipts batch.  Eventually, it will also connect to the customer's specified SFTP site and download the Lockbox file before initiating the processing.  
+'Quote: 
+'GAP: 5740
+v.Local.sFilePath.Declare(string)
+v.Local.sIcon.Declare(string)
+v.Local.sGssLogo.Declare(string)
+f.Intrinsic.Control.Try	
+	F.Intrinsic.String.Build("{0}\ART\gss2.ico",V.Caller.GlobalDir,v.Local.sIcon)		
+	F.Intrinsic.String.Build("{0}\ART\GAB_GSS_Logo_Green_Dash.png",V.Caller.GlobalDir,V.Local.sGssLogo)
+	gui.f_Upload.picLogo.Picture(v.Local.sGssLogo)
+	gui.f_Upload..Icon(V.Local.sIcon)
+
+	f.Intrinsic.Control.CallSub(checkCustom)
+	f.Intrinsic.Control.CallSub(LoadEmpties)
+	f.Intrinsic.Control.CallSub(GetReceivableAccts)
+	
+	
+'	'you have to create this sub in your script.
+	'F.Intrinsic.Control.AddEventHandler("SFTPDirList","Listdir")
+'	
+'	'Pull down the file from SFTP site to CUSTOM folder
+'	f.Communication.SFTP.SetProperty("SSHAcceptServerAuthentication","true")	
+'	f.Communication.SFTP.SetProperty("remoteHost", "safetransvalidate.wellsfargo.com")
+'	f.Communication.SFTP.SetProperty("USER", "jfw9ug8p")  	
+'	f.Communication.SFTP.SetProperty("SSHCERTSTOREPASSWORD","")
+' 	f.Communication.SFTP.SetProperty("SSHCERTSTORE", "C:\Users\dduncan\Desktop\PK message.txt" )
+'	f.Communication.SFTP.SetProperty("remotePort", 22)
+'	f.Communication.SFTP.Logon
+'	f.Communication.SFTP.SetProperty("RemotePath", "inbound/LINEP362_PMGR_1")
+'	
+'	'this will fire the event handler sub ListDir for each file listed in the folder
+'	F.Communication.SFTP.listdirectory
+	
+	
+	
+	gui.f_Upload..Show
+f.Intrinsic.Control.Catch
+	f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+f.Intrinsic.Control.EndTry
+Program.Sub.Main.End
+
+Program.Sub.ErrorMsg.Start
+v.Local.sError.Declare
+
+'Closes ODBC connection, default to connection : "con"
+f.Intrinsic.Control.If(v.ODBC!con.State, =, 1)
+	f.ODBC.Connection!con.Close
+f.Intrinsic.Control.EndIf
+
+'Generic Error message.
+f.Intrinsic.String.Build("Project GCG_5740_LockBoxAR.g2u {0}{0}Subroutine: {1}{0}Error: {2} with Description: {3}", v.Ambient.NewLine, v.Args.CurrentSub, v.Ambient.ErrorNumber, v.Ambient.ErrorDescription, v.Local.sError)
+f.Intrinsic.UI.Msgbox(v.Local.sError)
+Program.Sub.ErrorMsg.End
+
+Program.Sub.checkCustom.Start
+	v.Local.sPath.Declare
+	v.Local.bRet.Declare
+	v.Local.sPastFilesFile.Declare(string)
+	
+	f.Intrinsic.Control.Try
+		'ERRORS Folder
+		f.Intrinsic.String.Build("{0}\CUSTOM\GCG_5740\ERRORS", v.Caller.GlobalDir, v.Local.sPath)
+		f.Intrinsic.File.DirExists(v.Local.sPath, v.Local.bRet)
+		f.Intrinsic.Control.If(v.Local.bRet, =, false)
+			f.Intrinsic.File.CreateDir(v.Local.sPath)
+		f.Intrinsic.Control.EndIf
+		v.Global.sErrorFolder.Set(v.Local.sPath)
+		
+		'Initizalize errors DT
+		f.Data.DataTable.Create("dtErrors",True)
+		f.Data.DataTable.AddColumn("dtErrors","InvNum","String")
+		f.Data.DataTable.AddColumn("dtErrors","Customer","String")
+		f.Data.DataTable.AddColumn("dtErrors","InvDate","String")
+		f.Data.DataTable.AddColumn("dtErrors","Amount","String")
+		f.Data.DataTable.AddColumn("dtErrors","ErrorMsg","String")
+		
+		'Initialize past files DT and DV
+		f.Intrinsic.String.Build("{0}CUSTOM\GCG_5740\",v.Caller.GlobalDir,V.Local.sPath)
+		f.Intrinsic.String.Build("{0}ProcessedFiles.xml",v.Local.sPath,v.Local.sPastFilesFile)
+		f.Intrinsic.File.Exists(v.Local.sPastFilesFile,v.Local.bRet)
+		f.Intrinsic.Control.If(v.Local.bRet)
+			f.Data.DataTable.CreateFromXML("dtPastFiles",v.Local.sPastFilesFile,True)
+		f.Intrinsic.Control.Else
+			f.Data.DataTable.Create("dtPastFiles")
+			f.Data.DataTable.AddColumn("dtPastFiles","FileName","string")
+			f.Data.DataView.Create("dtPastFiles","dvPastFiles",22)
+		f.Intrinsic.Control.EndIf
+		
+		'QUEUE folder
+		f.Intrinsic.String.Build("{0}\CUSTOM\GCG_5740\QUEUE", v.Caller.GlobalDir, v.local.sPath)
+		f.Intrinsic.File.DirExists(v.Local.sPath, v.Local.bRet)
+		f.Intrinsic.Control.If(v.Local.bRet, =, false)
+			f.Intrinsic.File.CreateDir(v.Local.sPath)
+		f.Intrinsic.Control.EndIf
+		v.Global.sFilesPath.Set(v.Local.sPath)
+	f.Intrinsic.Control.Catch
+		f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+	f.Intrinsic.Control.EndTry
+Program.Sub.checkCustom.End
+
+Program.Sub.Form_UnLoad.Start
+	f.Intrinsic.Control.End
+Program.Sub.Form_UnLoad.End
+
+Program.Sub.cmdSubmit_Click.Start
+	v.Local.bExists.Declare(boolean)
+	f.Intrinsic.Control.If(v.Screen.f_Upload!txtFile.text,!=,"")
+		f.Intrinsic.File.Exists(v.Screen.f_Upload!txtFile.text,v.Local.bExists)
+		f.Intrinsic.Control.If(v.Local.bExists)
+			f.Intrinsic.Control.If(v.Screen.f_Upload!ddlCashAcct.Value,!=,"")
+				f.Intrinsic.Control.CallSub(UploadToGL)
+			f.Intrinsic.Control.Else
+				f.Intrinsic.UI.Msgbox("Select a cash account to begin processing","Error >> Cash Acct Missing")
+			f.Intrinsic.Control.EndIf
+		f.Intrinsic.Control.Else
+			f.Intrinsic.UI.Msgbox("Select a valid file to begin processing","Error >> File Does Not Exist")
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.Else
+		f.Intrinsic.UI.Msgbox("Select a file to begin processing","Error >> File Path Missing")
+	f.Intrinsic.Control.EndIf
+Program.Sub.cmdSubmit_Click.End
+
+Program.Sub.getBatchNumber.Start
+v.Local.sBatch.Declare(string)
+v.Local.sTemp.Declare(string)
+v.Local.iNumber.Declare(long)
+v.Local.sChar.Declare(string)
+v.Local.sSQL.Declare(string)
+v.Local.sBegDate.Declare(string)
+v.Local.sEndDate.Declare(string)
+v.Local.iYear.Declare(long)
+v.Local.sRet.Declare(string)
+v.Local.sBatchNum.Declare(string)
+v.Local.iBatch.Declare(long)
+f.Intrinsic.Control.Try
+
+	Function.Intrinsic.UI.InvokeWaitDialog("Upload in progress please wait ...")
+	'Set the dates
+	f.Intrinsic.Date.Year(V.Ambient.Date,v.Local.iYear)
+	f.Intrinsic.String.Build("{0}-01-01",v.Local.iYear.String,v.Local.sBegDate)
+	f.Intrinsic.String.Build("{0}-12-31",v.Local.iYear.String,v.Local.sEndDate)
+	'Set the SQL statement
+	f.Intrinsic.String.Build("select top 1 RIGHT(batch_num,4) AS BATCH_NUM from gcg_5740_batches where left(batch_num,1) = 'Q' and date_posted between '{0}' and '{1}' order by batch_num desc",v.Local.sBegDate,v.Local.sEndDate,v.local.sSQL)
+	'Get the last batch number and increment one
+	f.ODBC.Connection!con.opencompanyconnection
+		f.ODBC.Connection!con.executeandreturn(v.Local.sSQL,v.Local.sRet)
+	f.ODBC.Connection!con.close
+	
+	f.Intrinsic.Control.If(v.Local.sRet,=,"")
+		'If nothing returned, set the initial batch number. 
+		v.Local.sBatchNum.Set("Q0001")
+		'v.Global.sBatchNumberCredit.Set("Q0002")
+	f.Intrinsic.Control.ElseIf(v.Local.sRet,=,"9999")
+		f.Intrinsic.UI.Msgbox("Batch Q9999 reached.  No more batches can be processed.  Contact Global Shop for assistance.","5708 AR Upload Error")
+		f.Intrinsic.Control.End
+	f.Intrinsic.Control.Else
+		'Increment by one and continue
+		f.Intrinsic.Math.Add(v.Local.sRet.Long,1,v.Local.iBatch)
+		f.Intrinsic.String.lpad(v.Local.iBatch.String,"0",4,v.Local.sBatchNum)
+		f.Intrinsic.String.Build("Q{0}",v.Local.sBatchNum,v.Global.sBatchNumber)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Catch
+	f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+f.Intrinsic.Control.EndTry
+Program.Sub.getBatchNumber.End
+
+Program.Sub.f_Upload_UnLoad.Start
+	f.Intrinsic.Control.End
+Program.Sub.f_Upload_UnLoad.End
+
+Program.Sub.writeUPLGDETL_File.Start
+v.Local.sLine.Declare
+v.Local.iCnt.Declare
+v.Local.sTemp.Declare
+v.Local.sBatch.Declare
+v.Local.sBatchNumber.Declare
+v.Local.sEmpty.Declare
+v.Local.sGL_Account.Declare
+v.Local.sPostDate.Declare
+v.Local.iTerms.Declare
+v.Local.dTempDate.Declare(date,)
+v.Local.sCustomer.Declare
+v.Local.sFilter.Declare
+v.Local.sTransactionType.Declare
+v.Local.bDateError.Declare
+v.Local.fAmount.Declare
+v.Local.sCustName.Declare(string)
+v.Local.sBatchLine.Declare(string)
+v.Local.dPostDate.Declare(date)
+
+f.Intrinsic.Control.Try	
+
+	v.Local.sGL_Account.Set(v.Args.passedGL)
+	v.Local.sTransactionType.Set(v.Args.passedTransType)
+
+	v.Local.iCnt.Set(v.Args.passedCnt)
+	
+'	f.Intrinsic.String.Split(v.Ambient.Date.PervasiveDate, "-", v.Local.sTemp)
+'	f.Intrinsic.String.Join(v.Local.sTemp, , v.Local.sPostDate)
+	v.Local.dPostDate.Set(v.Screen.f_Upload!dtpPostDate.Value)
+	
+	'GL Account (15 chars)
+	f.Intrinsic.String.RPad(V.Local.sGL_Account, " ", 15, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Post Date (8 chars - YYYYMMDD)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.dPostDate.formatyyyymmdd, v.Local.sLine)
+	'f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Global.sFullDateBatch, v.Local.sLine)
+	'Transaction Batch Number (5 chars)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Args.passedBatchNumber, v.Local.sLine)
+	'Transaction Batch Line	(5 chars)
+	f.Intrinsic.String.RPad(v.Local.iCnt.String, " ", 5, v.Local.sBatchLine)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sBatchLine, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Transaction Voucher Number
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 7, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Reference
+	f.Intrinsic.String.RPad(v.Args.CheckNo," ",15,v.Local.sTemp)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sTemp, v.Local.sLine)
+	v.Global.sText.Set("")
+	'Amount
+	v.Local.fAmount.Set(v.args.Amount)
+	f.Intrinsic.Math.Mult(v.Local.fAmount, v.Args.passedMult, v.Local.fAmount)
+	f.Intrinsic.String.LPad(v.Local.fAmount.String, " ", 16, v.Global.sText)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Global.sText, v.Local.sLine)
+	v.Global.sText.Set("")
+	'Description  
+	f.Intrinsic.String.RPad(v.Args.custName," ",30,v.Local.sCustName)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sCustName.left30, v.Local.sLine)
+	v.Global.sText.Set("")
+	'Application Type
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 2, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Transaction Type
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sTransactionType, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Customer ID
+	f.Intrinsic.String.LPad(v.Args.CustID," ",7,v.Local.sCustomer)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sCustomer, v.Local.sLine)
+	v.Global.sText.Set("")
+	'Vendor ID
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 7, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'PO Number
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 7, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Invoice Number
+	f.Intrinsic.String.RPad(v.Args.InvoiceNumber, " ", 15, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+
+	'Invoice Date
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Args.InvDate, v.Local.sLine)
+	v.Global.sText.Set("")
+	
+	'Invoice Due Date	
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine,  v.Args.InvDate, v.Local.sLine)
+	v.Global.sText.Set("")
+	'Check System
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 2, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Check Number
+	f.Intrinsic.String.RPad(v.Args.CheckNo, " ", 6, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Check Date
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 8, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Check Gross Amount
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 16, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Check Discount Amount
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 11, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")
+	'Check Net Amount
+	f.Intrinsic.String.RPad(v.Local.sEmpty, " ", 16, v.Local.sEmpty)
+	f.Intrinsic.String.Build("{0}{1}", v.Local.sLine, v.Local.sEmpty, v.Local.sLine)
+	v.Local.sEmpty.Set("")		
+	
+	f.Intrinsic.Control.If(v.Local.bDateError)
+		f.Intrinsic.Control.If(v.Global.sDateErrorLines, =, "")
+			v.Global.sDateErrorLines.Set(v.Local.sLine)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1}{2}", v.Global.sGL_Lines, v.Ambient.NewLine, v.Local.sLine, v.Global.sDateErrorLines)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.Else
+		f.Intrinsic.Control.If(v.Global.sGL_Lines, =, "")
+			v.Global.sGL_Lines.Set(v.Local.sLine)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1}{2}", v.Global.sGL_Lines, v.Ambient.NewLine, v.Local.sLine, v.Global.sGL_Lines)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Catch
+	f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+f.Intrinsic.Control.EndTry
+Program.Sub.writeUPLGDETL_File.End
+
+Program.Sub.getSingleBatchNumber.Start
+v.Local.sBatch.Declare
+v.Local.sTemp.Declare
+v.Local.iNumber.Declare
+v.Local.sChar.Declare
+v.Local.sSQL.Declare
+f.Intrinsic.Control.Try
+	f.ODBC.Connection!con.OpenCompanyConnection
+		f.ODBC.Connection!con.ExecuteAndReturn("select batch_num from GCG_5740_BATCHES WHERE left(Batch_num,1)='Q'", v.Local.sBatch)
+	f.ODBC.Connection!con.Close
+	
+	f.Intrinsic.Control.If(v.Local.sBatch, =, "Q9999")
+		f.Intrinsic.UI.Msgbox("You Have reached the max number of Batches, Please Contact Global Shop.")
+		f.Intrinsic.Control.End
+	f.Intrinsic.Control.EndIf
+	
+	f.ODBC.Connection!con.OpenCompanyConnection
+		f.ODBC.Connection!con.Execute("delete from gcg_5740_batches where left(Batch_num,1)='Q';")
+	f.ODBC.Connection!con.Close
+	
+	f.Intrinsic.Control.If(v.Local.sBatch.Trim, =, "")
+		 f.ODBC.Connection!con.OpenCompanyConnection
+		 	f.Intrinsic.String.Build("Insert into  GCG_5740_BATCHES (BATCH_NUM, date_posted) Values ('Q0001', '{0}')",v.Ambient.Date.PervasiveDate,v.Local.sSQL)
+			f.ODBC.Connection!con.Execute(v.Local.sSQL)
+		f.ODBC.Connection!con.Close
+		
+		v.Global.sSingleBatchNumber.Set("Q0001")
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Right(v.Local.sBatch.Trim, 4, v.Local.sTemp)
+		f.Intrinsic.String.Left(v.Local.sBatch.Trim, 1, v.Local.sChar)
+		f.Intrinsic.Control.If(v.Local.sTemp.IsNumeric)
+			v.Local.iNumber.Set(v.Local.sTemp)
+			f.Intrinsic.Math.Add(v.Local.iNumber, 1, v.Local.iNumber)
+			f.Intrinsic.String.LPad(v.Local.iNumber, "0", 4, v.Local.sTemp)
+			f.Intrinsic.String.Build("{0}{1}", v.Local.sChar, v.Local.sTemp, v.Global.sSingleBatchNumber)
+						
+			f.ODBC.Connection!con.OpenCompanyConnection
+				f.Intrinsic.String.Build("Insert into  GCG_5740_BATCHES (BATCH_NUM, date_posted) Values ('{0}', '{1}')",v.Global.sSingleBatchNumber,v.Ambient.Date.PervasiveDate,v.Local.sSQL)
+				f.ODBC.Connection!con.Execute(v.Local.sSQL)
+			f.ODBC.Connection!con.Close
+		
+		f.Intrinsic.Control.Else
+			f.Intrinsic.UI.Msgbox("No Batch Found")
+			f.Intrinsic.Control.End
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Catch
+	f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+f.Intrinsic.Control.EndTry
+Program.Sub.getSingleBatchNumber.End
+
+Program.Sub.GetReceivableAccts.Start
+	f.Intrinsic.Control.Try
+		v.Local.sSQL.Declare(string)
+		v.Local.iCnt.Declare(long)
+		
+		'Get the AR account
+		V.Local.sSQL.set("select ACCT_FULL from V_ACCTS_REC_ACCT")
+		f.ODBC.Connection!conx.opencompanyconnection
+		F.ODBC.Connection!conx.OpenLocalRecordsetRO("rstBatch",V.Local.sSQL)
+		F.Intrinsic.Control.if(V.ODBC.conx!rstBatch.EOF,=,False)
+			V.Global.sGLAccountCredit.Set(V.ODBC.conx!rstBatch.FieldValtrim!ACCT_FULL)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.UI.Msgbox("Receivable account not found in company options, ending program")
+			f.Intrinsic.Control.End
+		F.Intrinsic.Control.EndIf
+		F.ODBC.conx!rstBatch.Close
+		
+		'Get the cash account		
+		V.Local.sSQL.set("select GL_CASH_ACCT from V_CASH_ACCOUNT")
+		f.Data.DataTable.CreateFromSQL("dtCashAccts","conx",v.Local.sSQL)
+		F.Intrinsic.Control.if(v.DataTable.dtCashAccts.RowCount,>,0)
+			f.Intrinsic.Control.For(v.Local.iCnt,0,v.DataTable.dtCashAccts.RowCount--,1)
+				gui.f_Upload.ddlCashAcct.additem(v.DataTable.dtCashAccts(v.Local.iCnt).GL_CASH_ACCT!FieldVal)
+			f.Intrinsic.Control.Next(v.Local.iCnt)
+			f.Intrinsic.Control.If(v.DataTable.dtCashAccts.RowCount,=,1)
+				gui.f_Upload.ddlCashAcct.Text(v.DataTable.dtCashAccts(0).GL_CASH_ACCT!FieldVal)
+			f.Intrinsic.Control.EndIf
+		f.Intrinsic.Control.Else
+			f.Intrinsic.UI.Msgbox("Cash account not found in company options, ending program")
+			f.Intrinsic.Control.End
+		F.Intrinsic.Control.EndIf
+		f.ODBC.Connection!conx.close
+		
+		'Get the discount account
+		f.Global.General.ReadOption("402459",1,"","0000",v.Global.sDiscountAcct)
+		f.Intrinsic.Control.If(v.Global.sDiscountAcct,=,"")
+			f.Intrinsic.UI.Msgbox("Discount account not found in company options, ending program")
+			f.Intrinsic.Control.End
+		f.Intrinsic.Control.EndIf
+		
+		'Set the GL dt
+		f.Data.DataTable.SetValue("dtGLData",1,"GLAcct",v.Global.sGLAccountCredit)
+		f.Data.DataTable.SetValue("dtGLData",2,"GLAcct",v.Global.sDiscountAcct)
+	f.Intrinsic.Control.Catch
+		f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+	f.Intrinsic.Control.EndTry
+Program.Sub.GetReceivableAccts.End
+
+Program.Sub.f_Upload_Resize.Start
+	F.Intrinsic.Control.Try
+		V.Local.sError.Declare
+		V.Local.iX.Declare
+		
+		F.Intrinsic.Math.Div(V.Screen.f_Upload.Width,2,V.Local.iX)
+		F.Intrinsic.Math.Sub(V.Local.iX,2000,V.Local.iX)
+		gui.f_Upload.picLogo.Position(V.Local.iX,240)
+	
+		'Let Form grow larger than 15360, but not lower
+		F.Intrinsic.Control.If(V.Screen.f_Upload.Width,<,15360)
+			gui.f_Upload..Size(15360,V.Screen.f_Upload.Height)
+		F.Intrinsic.Control.EndIf
+	F.Intrinsic.Control.Catch
+		f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+	f.Intrinsic.Control.Finally
+		gui.f_Upload..SetFocus
+	F.Intrinsic.Control.EndTry
+Program.Sub.f_Upload_Resize.End
+
+Program.Sub.LoadEmpties.Start
+	'Load the grid control with an empty datatable to show the columns
+	
+	
+	'Create the main datatable
+	f.Data.DataTable.Create("dtDisplay",True)
+	f.Data.DataTable.AddColumn("dtDisplay","InvNo","string")
+	f.Data.DataTable.AddColumn("dtDisplay","InvDate","string")
+	f.Data.DataTable.AddColumn("dtDisplay","Customer","string")
+	f.Data.DataTable.AddColumn("dtDisplay","CheckNo","string")
+	f.Data.DataTable.AddColumn("dtDisplay","InvBalAmt","float")
+	f.Data.DataTable.AddColumn("dtDisplay","DiscountAmt","float")
+	f.Data.DataTable.AddColumn("dtDisplay","Amount","float")
+	f.Data.DataTable.AddExpressionColumn("dtDisplay","NetAmt","float","InvBalAmt-DiscountAmt-Amount")
+	f.Data.DataTable.AddExpressionColumn("dtDisplay","CreditAmt","float","(Amount+DiscountAmt)*-1")
+	f.Data.DataTable.AddColumn("dtDisplay","OkToPost","boolean")
+	f.Data.DataTable.AddColumn("dtDisplay","Warning","string")
+	f.Data.DataTable.AddColumn("dtDisplay","Status","string")
+	f.Data.DataTable.AddColumn("dtDisplay","CustID","string")
+	
+	'Create the GL datatable
+	f.Data.DataTable.Create("dtGLData",True)
+	f.Data.DataTable.AddColumn("dtGLData","AcctType","string")
+	f.Data.DataTable.AddColumn("dtGLData","GLAcct","string")
+	f.Data.DataTable.AddColumn("dtGLData","GLAmt","float")
+	'Add rows to the datatable
+	f.Data.DataTable.AddRow("dtGLData","AcctType","Debit")
+	f.Data.DataTable.AddRow("dtGLData","AcctType","Credit")
+	f.Data.DataTable.AddRow("dtGLData","AcctType","Discount")
+
+	'Format the grid
+	f.Intrinsic.Control.CallSub(FormatGrid)
+Program.Sub.LoadEmpties.End
+
+Program.Sub.cmdProcFile_Click.Start
+	v.Local.bExists.Declare(boolean,False)
+	f.Intrinsic.Control.If(v.Screen.f_Upload!txtFile.text,=,"")
+		f.Intrinsic.UI.Msgbox("Please select a file","Error >> No File")
+	f.Intrinsic.Control.Else
+		'Check if file exists
+		f.Intrinsic.File.Exists(v.Screen.f_Upload!txtFile.text,v.Local.bExists)
+		f.Intrinsic.Control.If(v.Local.bExists)
+			f.Intrinsic.Control.CallSub(ProcessRecMgrFile)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.UI.Msgbox("File does not exist","Error >> No File")
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+Program.Sub.cmdProcFile_Click.End
+
+Program.Sub.CheckRowForErrors.Start
+	'Check for existing errors in the row values
+	v.Local.sErrors.Declare(string)
+	v.Local.sSQL.Declare(string)
+	v.Local.sRet.Declare(string)
+	
+	f.Intrinsic.Control.Try
+		'Must be a valid invoice number
+		f.Intrinsic.Control.If(v.DataTable.dtDisplay(v.Args.RowInd).InvNo!FieldValTrim,=,"0",OR,v.DataTable.dtDisplay(v.Args.RowInd).InvNo!FieldValTrim,=,"")
+			f.Intrinsic.String.Build("{0}Invoice # is invalid.  ",v.Local.sErrors,v.Local.sErrors)
+		f.Intrinsic.Control.Else
+			'Invoice must exist in Open AR Items as an invoice (batch_code=10)
+			f.ODBC.Connection!con.opencompanyconnection
+				f.Intrinsic.String.Build("select distinct isnull(ltrim(rtrim(invoice)),'') as Invoice from v_ar_open_items where invoice='{0}' and batch_code='10';",v.DataTable.dtDisplay(v.Args.RowInd).InvNo!FieldValTrim,v.Local.sSQL)
+				f.ODBC.Connection!con.executeandreturn(v.Local.sSQL,v.Local.sRet)
+			f.ODBC.Connection!con.close
+			f.Intrinsic.Control.If(v.Local.sRet,=,"")
+				f.Intrinsic.String.Build("{0}Invoice not in AR.  ",v.Local.sErrors,v.Local.sErrors)
+			f.Intrinsic.Control.EndIf
+		f.Intrinsic.Control.EndIf
+		
+		'Payment amount must be positive
+		f.Intrinsic.Control.If(v.DataTable.dtDisplay(v.Args.RowInd).Amount!FieldValFloat,<,0)
+			f.Intrinsic.String.Build("{0}Payment is negative.  ",v.Local.sErrors,v.Local.sErrors)
+		f.Intrinsic.Control.EndIf
+		
+		'Invoice balance must be positive
+		f.Intrinsic.Control.If(v.DataTable.dtDisplay(v.Args.RowInd).InvBalAmt!FieldValFloat,<,0)
+			f.Intrinsic.String.Build("{0}Invoice balance is negative.  ",v.Local.sErrors,v.Local.sErrors)
+		f.Intrinsic.Control.EndIf
+		
+		'Invoice must not be overpaid
+		f.Intrinsic.Control.If(v.DataTable.dtDisplay(v.Args.RowInd).NetAmt!FieldValFloat,<,0)
+			f.Intrinsic.String.Build("{0}Invoice overpaid.  ",v.Local.sErrors,v.Local.sErrors)
+		f.Intrinsic.Control.EndIf
+		
+		'Pass the error msg back to the calling sub
+		f.Intrinsic.Variable.AddRV("Errors",v.Local.sErrors)
+	f.Intrinsic.Control.Catch
+		f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+	f.Intrinsic.Control.EndTry
+Program.Sub.CheckRowForErrors.End
+
+Program.Sub.ddlCashAcct_LostFocus.Start
+	'When the value changes, set that GL account on the GL dt
+	v.Local.sText.Declare(string)
+	'Trim the value
+	f.Intrinsic.String.Trim(v.Screen.f_Upload!ddlCashAcct.Value,v.Local.sText)
+	f.Data.DataTable.SetValue("dtGLData",0,"GLAcct",v.Local.sText)
+Program.Sub.ddlCashAcct_LostFocus.End
+
+Program.Sub.FormatGrid.Start
+	f.Intrinsic.Control.Try
+		gui.f_Upload.GsGcDisplay.AddGridviewFromDatatable("gvDisplay","dtDisplay")
+		
+		'Set gridview properties
+		Gui.f_Upload.GsGcDisplay.SetGridViewProperty("gvDisplay","MultiSelect",True)
+		Gui.f_Upload.GsGcDisplay.SetGridViewProperty("gvDisplay","AllowSort",True)
+		Gui.f_Upload.GsGcDisplay.SetGridViewProperty("gvDisplay","AllowFilter",True)
+		Gui.f_Upload.GsGcDisplay.SetGridViewProperty("gvDisplay","OptionsDetailShowDetailTabs",False)
+		Gui.f_Upload.GsGcDisplay.SetGridViewProperty("gvDisplay","OptionsViewShowGroupPanel",True)
+		Gui.f_Upload.GsGcDisplay.SetGridviewProperty("gvDisplay","OptionsFilterUseNewCustomFilterDialog",True)
+		Gui.f_Upload.GsGcDisplay.SetGridviewProperty("gvDisplay","OptionsViewColumnAutoWidth",False)
+		
+		'Set column properties:
+		'	InvNo
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvNo","Caption","Inv No")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvNo","HeaderHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvNo","CellHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvNo","HeaderFontBold",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvNo","MinWidth","75")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvNo","Readonly",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvNo","AllowEdit",False)
+		'	InvDate
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvDate","Caption","Inv Date")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvDate","HeaderHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvDate","CellHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvDate","HeaderFontBold",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvDate","MinWidth","75")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvDate","Readonly",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvDate","AllowEdit",False)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvDate","DisplayCustomDatetime","d")
+		'	Customer
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Customer","Caption","Customer")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Customer","HeaderHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Customer","CellHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Customer","HeaderFontBold",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Customer","MinWidth","150")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Customer","Readonly",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Customer","AllowEdit",False)
+		'	CheckNo
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","CheckNo","Caption","CheckNo")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","CheckNo","HeaderHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","CheckNo","CellHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","CheckNo","HeaderFontBold",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","CheckNo","MinWidth","75")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","CheckNo","Readonly",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","CheckNo","AllowEdit",False)
+		'	InvBalAmt
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvBalAmt","Caption","Inv Balance")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvBalAmt","HeaderHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvBalAmt","CellHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvBalAmt","HeaderFontBold",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvBalAmt","MinWidth","75")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvBalAmt","Readonly",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvBalAmt","AllowEdit",False)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","InvBalAmt","DisplayCustomNumeric","$#,###,###,##0.00")
+		'	DiscountAmt
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","DiscountAmt","Caption","DiscountAmt")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","DiscountAmt","HeaderHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","DiscountAmt","CellHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","DiscountAmt","HeaderFontBold",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","DiscountAmt","MinWidth","75")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","DiscountAmt","Readonly",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","DiscountAmt","AllowEdit",False)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","DiscountAmt","DisplayCustomNumeric","$#,###,###,##0.00")
+		'	Amount
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Amount","Caption","Pay Amt")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Amount","HeaderHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Amount","CellHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Amount","HeaderFontBold",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Amount","MinWidth","75")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Amount","Readonly",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Amount","AllowEdit",False)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Amount","DisplayCustomNumeric","$#,###,###,##0.00")
+		'	NetAmt
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","NetAmt","Caption","Net Inv Amt")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","NetAmt","HeaderHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","NetAmt","CellHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","NetAmt","HeaderFontBold",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","NetAmt","MinWidth","75")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","NetAmt","Readonly",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","NetAmt","AllowEdit",False)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","NetAmt","DisplayCustomNumeric","$#,###,###,##0.00")
+		'	OkToPost
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","OkToPost","Caption","OkToPost")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","OkToPost","HeaderHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","OkToPost","CellHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","OkToPost","HeaderFontBold",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","OkToPost","MinWidth","50")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","OkToPost","Readonly",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","OkToPost","AllowEdit",False)
+		'	Warning
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Warning","Caption","Warning")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Warning","HeaderHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Warning","CellHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Warning","HeaderFontBold",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Warning","MinWidth","200")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Warning","Readonly",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Warning","AllowEdit",False)
+		'	Status
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Status","Caption","Status")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Status","HeaderHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Status","CellHAlignment","Center")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Status","HeaderFontBold",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Status","MinWidth","50")
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Status","Readonly",True)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","Status","AllowEdit",False)
+		
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","CreditAmt","Visible",False)
+		Gui.f_Upload.GsGcDisplay.SetColumnProperty("gvDisplay","CustID","Visible",False)
+		
+		gui.f_Upload.GsGcGLData.AddGridviewFromDatatable("gvGLData","dtGLData")
+		
+		
+		'Set gridview properties for GL data grid
+		Gui.f_Upload.GsGcGLData.SetGridViewProperty("gvGLData","MultiSelect",True)
+		Gui.f_Upload.GsGcGLData.SetGridViewProperty("gvGLData","AllowSort",True)
+		Gui.f_Upload.GsGcGLData.SetGridViewProperty("gvGLData","AllowFilter",True)
+		Gui.f_Upload.GsGcGLData.SetGridViewProperty("gvGLData","OptionsDetailShowDetailTabs",False)
+		Gui.f_Upload.GsGcGLData.SetGridViewProperty("gvGLData","OptionsViewShowGroupPanel",False)
+		Gui.f_Upload.GsGcGLData.SetGridviewProperty("gvGLData","OptionsFilterUseNewCustomFilterDialog",True)
+		Gui.f_Upload.GsGcGLData.SetGridviewProperty("gvGLData","OptionsViewColumnAutoWidth",True)
+		
+		'Set column properties:
+		'	AcctType
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","AcctType","Caption","Type")
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","AcctType","HeaderHAlignment","Center")
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","AcctType","CellHAlignment","Center")
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","AcctType","HeaderFontBold",True)
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","AcctType","MinWidth","75")
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","AcctType","Readonly",True)
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","AcctType","AllowEdit",False)
+		'	GLAcct
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","GLAcct","Caption","GL #")
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","GLAcct","HeaderHAlignment","Center")
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","GLAcct","CellHAlignment","Center")
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","GLAcct","HeaderFontBold",True)
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","GLAcct","MinWidth","75")
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","GLAcct","Readonly",True)
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","GLAcct","AllowEdit",False)
+		'	GLAmt
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","GLAmt","Caption","Tot Amt")
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","GLAmt","HeaderHAlignment","Center")
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","GLAmt","CellHAlignment","Center")
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","GLAmt","HeaderFontBold",True)
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","GLAmt","MinWidth","75")
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","GLAmt","Readonly",True)
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","GLAmt","AllowEdit",False)
+		Gui.f_Upload.GsGcGLData.SetColumnProperty("gvGLData","GLAmt","DisplayCustomNumeric","$#,###,###,##0.00")
+		
+		gui.f_Upload.GsGcDisplay.MainView("gvDisplay")
+		gui.f_Upload.GsGcGLData.MainView("gvGLData")
+	f.Intrinsic.Control.Catch
+		f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+	f.Intrinsic.Control.EndTry
+Program.Sub.FormatGrid.End
+
+Program.Sub.cmdExport_Click.Start
+	F.Intrinsic.Control.Try
+		V.Local.sFileExport.Declare
+		V.Local.bExcel.Declare
+		V.Local.bFileLocked.Declare
+		V.Local.sMsg.Declare
+		V.Local.sExt.Declare
+		
+		F.Automation.MSExcel.CheckPresence(V.Local.bExcel)
+			F.Intrinsic.Control.If(V.Local.bExcel)
+				V.Local.sExt.Set("xlsx")
+			F.Intrinsic.Control.Else
+				V.Local.sExt.Set("csv")
+			F.Intrinsic.Control.EndIf
+			
+			F.Intrinsic.String.Build("{0}\GCG_5740_Lockbox.{1}",V.Caller.LocalGssTempDir,V.Local.sExt,V.Local.sFileExport)
+			F.Intrinsic.File.IsFileLocked(V.Local.sFileExport,V.Local.bFileLocked)
+			F.Intrinsic.Control.If(V.Local.bFileLocked)
+				F.Intrinsic.String.Build("File is already open. Please close and export again.{0}File: {1}",V.Ambient.NewLine,V.Local.sFileExport,V.Local.sMsg)
+				F.Intrinsic.UI.Msgbox(V.Local.sMsg,"File In Use")
+			F.Intrinsic.Control.Else
+				Gui.f_Upload.GsGcDisplay.Export(V.Local.sFileExport,V.Local.sExt)
+				F.Intrinsic.Task.ShellExec(0,"",V.Local.sFileExport,"","",1)
+			F.Intrinsic.Control.EndIf
+	F.Intrinsic.Control.CatchWhen(5700)
+		F.Intrinsic.UI.Msgbox("No Data to Export","Export")
+	f.Intrinsic.Control.Catch
+		f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+	f.Intrinsic.Control.EndTry
+Program.Sub.cmdExport_Click.End
+
+Program.Sub.cmdBrowse_Click.Start
+	f.Intrinsic.Control.Try
+		v.Local.sPath.Declare(string)
+		v.Local.sSelectedFileName.Declare(string)
+		
+		'Build the target folder path
+		f.Intrinsic.String.Build("{0}CUSTOM\GCG_5740\",v.Caller.GlobalDir,V.Local.sPath)
+		
+		'Windows open file dialog
+		F.Intrinsic.UI.ShowOpenFileDialog("", "",V.Local.sPath,v.Local.sSelectedFileName)
+		f.Intrinsic.Control.If(v.Local.sSelectedFileName,!=,"***CANCEL***")
+			gui.f_Upload.txtFile.Text(v.Local.sSelectedFileName)
+		F.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.Catch
+		f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+	f.Intrinsic.Control.EndTry
+Program.Sub.cmdBrowse_Click.End
+
+Program.Sub.UploadToGL.Start
+	'Loop through the datatable's contents and upload any rows that are okay to process and have not been processed already
+	v.Local.iCnt.Declare(long)
+	v.Local.sCustID.Declare(string)
+	v.Local.sPayAmt.Declare(string)
+	v.Local.iBatchLineNumber.Declare(long)
+	v.Local.sInvDateGL.Declare(string)
+	v.Local.sInvDateAR.Declare(string)
+	v.Local.dInvDate.Declare(date)
+	v.Local.sInvDate.Declare(date)
+	v.Local.sInvYear.Declare(string)
+	v.Local.sInvMonth.Declare(string)
+	v.Local.sInvDay.Declare(string)
+	V.Local.sFile.Declare(string)
+	V.Local.bExists.Declare(boolean)
+	v.Local.sTransDate.Declare(string)
+	v.Local.sSQL.Declare(string)
+
+	f.Intrinsic.Control.Try
+		'Create the dataview
+		f.Data.DataTable.acceptchanges("dtDisplay")
+		f.Data.DataView.Create("dtDisplay","dvDisplay",22,"OKToPost=True","")
+'		f.Data.DataView.Create("dtDisplay","dvDisplay",22,"OKToPost=True and Status<>'POSTED'","")
+		
+		f.Intrinsic.Control.If(v.DataView.dtDisplay!dvDisplay.RowCount,>,0)
+			'Get the batch number
+			f.Intrinsic.Control.CallSub(getSingleBatchNumber)
+			'Get the transaction date and Format the transaction date for aging
+			f.Intrinsic.string.Format(v.Ambient.Date,"mmddyy",v.Local.sTransDate)
+			'Loop through the main display dt to add those records to be precessed
+			f.Intrinsic.Control.For(v.Local.iCnt,0,v.DataView.dtDisplay!dvDisplay.RowCount--,1)
+				'Increment the batch line number
+				f.Intrinsic.Math.Add(v.local.iCnt,1,v.Local.iBatchLineNumber)
+				'Format the AR date
+				f.Intrinsic.String.Format(v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).InvDate!FieldVal,"mmddyy",v.Local.sInvDateAR)
+			
+				'Write to UPLAROP
+				f.Data.DataTable.AddRow("UPLAROP", "CustNum", v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).CustID!FieldValTrim, "InvNum", v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).InvNo!FieldValTrim,"TransCode", "11", "BatchNum",  v.Global.sSingleBatchNumber, "BatchLine", v.Local.iBatchLineNumber,"InvDate", v.Local.sInvDateAR, "InvTotal", v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).CreditAmt!FieldValTrim, "GLAcct", v.Global.sGLAccountCredit,"InvAmt",v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).CreditAmt!FieldValTrim,"TransDate",v.Local.sTransDate)
+				
+				'Write to GL batch (3 entries total = debit, credit, and discount)
+				'Credit AR Open Items account
+'				f.Intrinsic.String.Format(v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).Amount!FieldValDate,"yyyymmdd",v.Local.sInvDateGL)
+				F.Intrinsic.String.Format(V.Screen.f_Upload!dtpPostDate.Value,"yyyymmdd",v.Local.sInvDateGL)
+				f.Intrinsic.Control.CallSub(writeUPLGDETL_File, passedCnt, v.Local.iCnt, passedGL, v.Global.sGLAccountCredit, passedTransType, "11", passedMult, 1, passedBatchNumber, v.Global.sSingleBatchNumber, InvoiceNumber, v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).InvNo!FieldValTrim, Amount, v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).CreditAmt!FieldValTrim, CustName, v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).Customer!FieldValTrim, CustID, v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).CustID!FieldValTrim, InvDate, v.Local.sInvDateGL,CheckNo,v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).CheckNo!FieldValTrim)
+				'Debit for cash
+				f.Intrinsic.Control.CallSub(writeUPLGDETL_File, passedCnt, v.Local.iCnt, passedGL, v.screen.f_Upload!ddlCashAcct.Text, passedTransType, "11", passedMult, 1, passedBatchNumber, v.Global.sSingleBatchNumber, InvoiceNumber, v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).InvNo!FieldValTrim, Amount, v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).Amount!FieldValTrim,CustName, v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).Customer!FieldValTrim, CustID, v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).CustID!FieldValTrim, InvDate, v.Local.sInvDateGL,CheckNo,v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).CheckNo!FieldValTrim)
+				'Debit for sales discount - if there is one.
+				f.Intrinsic.Control.If(v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).DiscountAmt!FieldValFloat,>,0)
+					f.Intrinsic.Control.CallSub(writeUPLGDETL_File, passedCnt, v.Local.iCnt, passedGL, v.Global.sDiscountAcct, passedTransType, "11", passedMult, 1, passedBatchNumber, v.Global.sSingleBatchNumber, InvoiceNumber, v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).InvNo!FieldValTrim, Amount, v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).DiscountAmt!FieldValTrim,CustName, v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).Customer!FieldValTrim, CustID, v.Local.sCustID, InvDate, v.Local.sInvDateGL,CheckNo,v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).CheckNo!FieldValTrim)
+				f.Intrinsic.Control.EndIf
+				
+				'Mark the status as POSTED
+				f.Data.Datatable.SetValue("dtDisplay",v.DataView.dtDisplay!dvDisplay(v.Local.iCnt).datatableindex,"Status","POSTED")
+			f.Intrinsic.Control.Next(v.Local.iCnt)
+			
+			'If some records were read in, process as batch
+			f.Intrinsic.Control.If(v.Global.sGL_Lines,!=,"")
+				F.Intrinsic.UI.ChangeWaitStatus("Uploading batch contents to AR and GL",0,0,2)
+				'Create the name for the file
+				f.Intrinsic.String.Build("{0}\GLDETAIL.TXT", v.Caller.FilesDir,V.Local.sFile)
+				F.Intrinsic.File.Exists(V.Local.sFile,V.Local.bExists)
+				F.Intrinsic.Control.If(V.Local.bExists,=,True)
+					F.Intrinsic.File.DeleteFile(V.Local.sFile)
+				F.Intrinsic.Control.EndIf
+				
+				'Export the text to a file
+				F.Intrinsic.File.String2File(V.Local.sFile,V.Global.sGL_Lines)
+				
+				'upload
+				F.Intrinsic.UI.ChangeWaitStatus("Uploading batch contents to AR and GL",1,0,2)
+				f.Intrinsic.Control.If(v.DataTable.UPLAROP.RowCount, >, 0)
+					f.Intrinsic.Control.CallSub(UPLAROPSync)
+				f.Intrinsic.Control.EndIf
+				
+				F.Intrinsic.UI.ChangeWaitStatus("Uploading batch contents to AR and GL",2,0,2)
+				'/U option runs the program screenless
+				f.Global.General.CallWrapperSync(50, "UPLGDETL/U")
+				'/A options runs with screens and the debug at the end
+				'f.Global.General.CallWrapperSync(50, "UPLGDETL/A")
+				
+				
+				f.Intrinsic.String.Build("Batch {0} uploaded successfully.",v.Global.sSingleBatchNumber,v.Local.sSQL)
+				f.Intrinsic.UI.Msgbox(v.Local.sSQL,"Success")
+			f.Intrinsic.Control.EndIf
+		f.Intrinsic.Control.Else
+			f.Intrinsic.UI.Msgbox("No rows available to process","Error >> No Rows")
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.Catch
+		f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+	F.Intrinsic.Control.Finally
+		f.Data.DataView.Close("dtDisplay","dvDisplay")
+		f.Intrinsic.UI.CloseWaitDialog
+	f.Intrinsic.Control.EndTry
+Program.Sub.UploadToGL.End
+
+Program.Sub.ProcessRecMgrFile.Start
+	'This sub will process the Wells Fargo Receivables Manager v.002 file format (fixed width file edition) for LBX type transactions only. **Note: Please refer to the file spec included in this project, as the spec is far too long to post here.
+	
+	'Find line that starts with PTH, as this is the Payment Type Header.  Proceed two lines down, as the following line is the Batch Header line and contains information not needed for this project. 
+	
+	'Next, find line that starts with 'PR '.  This is a Payment line, containing the following information needed:
+	'	ID		FIELD					MAX	TYPE	JUST	DESCRIPTION											POS
+	'	------	-------					---	----	----	----------------------								-----
+	'	PR05	Amount Paid				18	N2		R		Total transaction amount							58
+	'	PR09	Sender payment ref num	80	AN		L		For LBX, this is the check number.					103
+	'		**NOTE: If ACH, WIR, or WPG, just use 'ACH', 'WIR', or 'WPG'
+	'	PR12	Deposit date			8	DT		L		Deposit date of the payment in format YYYYMMDD.		343
+	'		**NOTE: Only used on WIR and WPG
+	'	PR13	Payment effective date	8	DT		L		Effective date of the payment in format YYYYMMDD.	351
+	'		**NOTE: Only used on ACH and LBX and WPG
+	'Then, find a line that starts with 'PPR'.  This is a Payor Information line, containing thefollowing information needed:
+	'	ID		FIELD					MAX	TYPE	JUST	DESCRIPTION											POS
+	'	------	-------					---	----	----	----------------------								-----
+	'	PPR01	Name					60	AN		L		Customer name										4
+	'Then, find line that starts with 'REM'.  This is the Remittance Advice line, containng the following information needed:
+	'	ID		FIELD					MAX	TYPE	JUST	DESCRIPTION											POS
+	'	------	-------					---	----	----	----------------------								-----
+	'	REM04	Rem. Reference			80	AN		L		For LBX transactions, this will be the invoice no	46
+	'	**NOTE: Only use for LBX and ACH transactions.
+	'	REM05	Rem. Net Amt Paid		18	N2		R		Net amount being applied for this particular inv	126
+	'	REM07	Rem. Discount Amt		18	N2		R		Discount or adjustment amount						162
+	
+	v.Local.sFile.Declare(string)
+	v.Local.iCnt.Declare(long,0)
+	v.Local.sPayAmt.Declare(string)
+	v.Local.sDiscountAmt.Declare(string)
+	v.Local.sCreditAmt.Declare(string)
+	v.Local.sChkNo.Declare(string)
+	v.Local.sPayDate.Declare(string)
+	v.Local.sCustName.Declare(string)
+	v.Local.sInvNo.Declare(string)
+	v.local.sTemp.declare(string)
+	v.local.sTemp2.declare(string)
+	v.Local.bOKToProcessSublines.Declare(string,False)
+	v.Local.sPayType.Declare(string)
+	v.Local.sSQL.Declare(string)
+	v.Local.bOKtoPost.Declare(boolean,False)
+	v.Local.sCustID.Declare(string)
+	V.Local.sTempPayAmt.Declare(string)
+	v.Local.bNoRemit.Declare(boolean)
+	v.Local.iProgCnt.Declare(long,0)
+	
+	f.Intrinsic.Control.Try
+		'User feedback
+		gui.f_Upload.lblStatus.Visible(True)
+		gui.f_Upload.pbStatus.Value(0)
+		gui.f_Upload.pbStatus.Visible(True)
+		gui.f_Upload.lblStatus.Caption("Reading in file...")
+		'Clear out the existing datatable
+		f.Data.DataTable.DeleteRow("dtDisplay")
+		'Get the total amounts due per invoice, and Get the customer ID per invoice
+		f.odbc.Connection!con.opencompanyconnection
+			f.Data.DataTable.CreateFromSQL("dtAROpenItems","con","select LTRIM(RTRIM(invoice)) AS Invoice, customer, sum(amt_invoice) as InvBalance from v_ar_open_items group by invoice,customer")
+		f.odbc.Connection!con.close
+		f.Data.Dictionary.createfromdatatable("dictInvBal","dtAROpenItems","Invoice","InvBalance")
+		f.Data.Dictionary.createfromdatatable("dictInvCust","dtAROpenItems","Invoice","Customer")
+		f.Data.Dictionary.SetDefaultReturn("dictInvBal",0)
+		f.Data.Dictionary.SetDefaultReturn("dictInvCust","")
+		'Process the file
+		f.Intrinsic.File.File2String(v.Screen.f_Upload!txtFile.text,v.Local.sFile)
+		f.Intrinsic.String.Split(v.Local.sFile,v.Ambient.NewLine,v.Local.sFile)
+		'User feedback
+		gui.f_Upload.pbStatus.Min(0)
+		gui.f_Upload.pbStatus.Max(v.Local.sFile.UBound)
+		v.Local.iProgCnt.Set(0)
+		f.Intrinsic.Control.For(v.Local.iCnt,0,v.Local.sFile.UBound,1)
+			'Progress
+			gui.f_Upload.pbStatus.Value(v.Local.icnt)
+			'Get the line type code
+			f.Intrinsic.String.Left(v.Local.sFile(v.Local.iCnt),3,v.Local.sTemp)
+			f.Intrinsic.Control.SelectCase(v.Local.sTemp)
+				f.Intrinsic.Control.Case("PTH")	'Beginning of a new payment method section.  Next, to see what type of payment method
+					f.Intrinsic.String.Mid(v.Local.sFile(v.Local.iCnt),4,3,v.Local.sPayType)
+					'Reset the OKToProcess flag and pay type
+					v.Local.bOKToProcessSublines.Set(False)
+					'Make sure that we only process transactions if they are Lockbox, ACH, or Wire, as these are what is supported in the project.  File should not contain any other types of transactions, but just in case.
+					f.Intrinsic.Control.SelectCase(v.Local.sPayType)
+						f.Intrinsic.Control.caseany("LBX","ACH","WIR","WPG")
+							v.Local.bOKToProcessSublines.Set(True)
+					f.Intrinsic.Control.EndSelect
+				f.Intrinsic.Control.Case("PR ")
+					F.Intrinsic.Control.If(V.Local.bOKToProcessSublines)
+						'If the last line did not have any remittance information (the invoice, payment, and discount vars are not set), get the payment amount, add the row, and flag as error.
+						f.Intrinsic.Control.If(v.local.sInvNo.Trim,=,"","AND",V.DataTable.dtDisplay.RowCount,>,0)
+							f.Intrinsic.Control.If(V.Local.sPayAmt,=,"")
+								f.Intrinsic.Control.If(V.Local.sPayAmt,=,"")
+									'Set the payment amount
+									v.Local.sPayAmt.Set(v.Local.sTempPayAmt)
+									'Set the discount
+									v.Local.sDiscountAmt.Set("0")
+									'Post the row with errors
+									f.Data.DataTable.AddRow("dtDisplay","InvNo",v.Local.sInvNo.Trim,"InvDate",v.Local.sPayDate,"Customer",v.Local.sCustName.Trim,"CheckNo",v.Local.sChkNo.Trim,"Amount",v.Local.sPayAmt.Trim,"OKToPost",False,"DiscountAmt",v.Local.sDiscountAmt,"InvBalAmt","0","Warning","No remittance provided")
+								f.Intrinsic.Control.EndIf
+							f.Intrinsic.Control.EndIf
+						f.Intrinsic.Control.EndIf
+						'Clearing local values so that they do not mistakenly interfere with other lines that could be missing information
+						v.Local.sInvNo.Set("")
+						v.Local.sPayDate.Set("")
+						v.Local.sCustName.Set("")
+						v.Local.sChkNo.Set("")
+						v.Local.sPayAmt.Set("")
+						v.Local.sDiscountAmt.Set("")
+						v.Local.bOKtoPost.Set(False)
+						'Get the payment amount to use if there is no remittance info supplied
+						F.Intrinsic.String.Mid(V.Local.sFile(v.Local.iCnt),58,18,v.Local.sTempPayAmt)
+						f.Intrinsic.Math.Div(v.Local.sTempPayAmt,100,v.Local.sTempPayAmt)
+						
+						'Get the check no
+						f.Intrinsic.Control.If(v.Local.sPayType,=,"LBX")
+							F.Intrinsic.String.Mid(V.Local.sFile(v.Local.iCnt),103,80,v.Local.sChkNo)
+						f.Intrinsic.Control.Else
+							v.Local.sChkNo.Set(v.Local.sPayType)
+						f.Intrinsic.Control.EndIf
+						
+						'Get the pay date
+						f.Intrinsic.Control.If(v.Local.sPayType,=,"WIR",OR,v.Local.sPayType,=,"WPG")
+						
+							F.Intrinsic.String.Mid(V.Local.sFile(v.Local.iCnt),343,8,v.Local.sPayDate)
+						f.Intrinsic.Control.Else
+							F.Intrinsic.String.Mid(V.Local.sFile(v.Local.iCnt),351,8,v.Local.sPayDate)
+						f.Intrinsic.Control.EndIf
+						
+						'Format the payment date
+						f.Intrinsic.String.Mid(v.Local.sPayDate,5,2,v.Local.sTemp2)
+						f.Intrinsic.String.Build("{0}-{1}-{2}",v.Local.sPayDate.left4,v.Local.sTemp2,v.Local.sPayDate.right2,v.Local.sPayDate)
+					F.Intrinsic.Control.EndIf
+				f.Intrinsic.Control.Case("PPR")
+					F.Intrinsic.Control.If(V.Local.bOKToProcessSublines)
+						F.Intrinsic.String.Mid(V.Local.sFile(v.Local.iCnt),4,60,v.Local.sCustName)
+					F.Intrinsic.Control.EndIf
+				f.Intrinsic.Control.Case("REM")
+					F.Intrinsic.Control.If(V.Local.bOKToProcessSublines)
+						f.Intrinsic.Control.If(v.Local.sPayType,=,"WIR")
+							v.Local.sInvNo.Set("")
+						f.Intrinsic.Control.Else
+							F.Intrinsic.String.Mid(V.Local.sFile(v.Local.iCnt),46,80,v.Local.sInvNo)
+						f.Intrinsic.Control.EndIf
+						
+						F.Intrinsic.String.Mid(V.Local.sFile(v.Local.iCnt),126,18,v.Local.sPayAmt)
+						f.Intrinsic.Math.Div(v.Local.sPayAmt,100,v.Local.sPayAmt)
+						f.Intrinsic.String.Mid(v.Local.sFile(v.Local.iCnt),162,18,v.Local.sDiscountAmt)
+						f.Intrinsic.Math.Div(v.Local.sDiscountAmt,100,v.Local.sDiscountAmt)
+						
+						'At this point, we should have all that we need, so we can add a line to the datatable and clear out our local values
+						f.Data.DataTable.AddRow("dtDisplay","InvNo",v.Local.sInvNo.Trim,"InvDate",v.Local.sPayDate,"Customer",v.Local.sCustName.Trim,"CheckNo",v.Local.sChkNo.Trim,"Amount",v.Local.sPayAmt.Trim,"OKToPost",False,"DiscountAmt",v.Local.sDiscountAmt)
+						'Set the invoice open amount and the customer ID
+						f.Data.DataTable.SetValue("dtDisplay",v.DataTable.dtDisplay.RowCount--,"InvBalAmt",v.dictionary.dictInvBal![v.Local.sInvNo.Trim],"CustID",v.dictionary.dictinvcust![v.Local.sInvNo.Trim])
+						'Validate the data in the last row added
+						f.Intrinsic.Control.callsub(CheckRowForErrors,"RowInd",v.DataTable.dtDisplay.RowCount--)
+						f.Intrinsic.Control.If(v.Args.Errors,!=,"")
+							v.Local.bOKtoPost.Set(False)
+						f.Intrinsic.Control.Else
+							v.Local.bOKtoPost.Set(True)
+						f.Intrinsic.Control.EndIf
+						f.Data.DataTable.SetValue("dtDisplay",v.DataTable.dtDisplay.RowCount--,"OKToPost",v.Local.bOKtoPost,"Warning",v.Args.Errors)
+					F.Intrinsic.Control.EndIf
+			f.Intrinsic.Control.EndSelect
+		f.Intrinsic.Control.Next(v.Local.iCnt)
+		
+		f.Data.Dictionary.Close("dictInvBal")
+		f.Data.Dictionary.Close("dictInvCust")
+		
+		F.Data.DataView.Create("dtDisplay","TempdtDisplay",22,"DiscountAmt < 0","")
+		F.Intrinsic.Control.If(V.DataView.dtDisplay!TempdtDisplay.RowCount--,<>,-1)
+			F.Data.DataView.SetValue("dtDisplay","TempdtDisplay",-1,"OkToPost",False,"Warning","Discount Amt is Negative")
+		F.Intrinsic.Control.EndIf
+		F.Data.DataView.Close("dtDisplay","TempdtDisplay")
+		
+		'Total the debits, credits, and discounts from records that are OK to process
+		f.Data.DataTable.Compute("dtDisplay","Sum(Amount)","Warning=''",v.Local.sPayAmt)
+		f.Intrinsic.Control.If(v.Local.sPayAmt,=,"")
+			v.Local.sPayAmt.Set("0")
+		f.Intrinsic.Control.EndIf
+		f.Data.DataTable.Compute("dtDisplay","Sum(CreditAmt)","Warning=''",v.Local.sCreditAmt)
+		f.Intrinsic.Control.If(v.Local.sCreditAmt,=,"")
+			v.Local.sCreditAmt.Set("0")
+		f.Intrinsic.Control.EndIf
+		f.Data.DataTable.Compute("dtDisplay","Sum(DiscountAmt)","Warning=''",v.Local.sDiscountAmt)
+		f.Intrinsic.Control.If(v.Local.sDiscountAmt,=,"")
+			v.Local.sDiscountAmt.Set("0")
+		f.Intrinsic.Control.EndIf
+		f.Data.DataTable.SetValue("dtGLData",0,"GLAmt",v.Local.sPayAmt)
+		f.Data.DataTable.SetValue("dtGLData",1,"GLAmt",v.Local.sCreditAmt)
+		f.Data.DataTable.SetValue("dtGLData",2,"GLAmt",v.Local.sDiscountAmt)
+		
+		'User feedback
+		gui.f_Upload.lblStatus.Caption("Complete.")
+		
+	f.Intrinsic.Control.Catch
+		gui.f_Upload.lblStatus.Caption("Error.")
+		f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+	f.Intrinsic.Control.Finally
+		'User feedback end
+		f.Intrinsic.UI.Sleep(1)
+		gui.f_Upload.lblStatus.Visible(False)
+		gui.f_Upload.pbStatus.Value(0)
+		gui.f_Upload.pbStatus.Visible(False)
+	f.Intrinsic.Control.EndTry
+Program.Sub.ProcessRecMgrFile.End
+
+'--------------------------------------------------------	NOT NEEDED ANY LONGER	-------------------------------------------------------------
+Program.Sub.CreateUpload_New.Start
+	f.Intrinsic.Control.Try
+		v.Local.sText.Declare(string)
+		v.Local.sTemp.Declare(string)
+		v.Local.iCnt.Declare(long)
+		V.Local.sFile.Declare(string)
+		V.Local.sParam.Declare(string)
+		v.local.sIncomingFile.Declare(string)
+		v.Local.sCustID.Declare(string)
+		v.Local.sCheckNo.Declare(string)
+		v.Local.sSQL.Declare(string)
+		V.Local.bExists.Declare(boolean)
+		v.Local.sPayAmt.Declare(string)
+		v.Local.sNetInvAmt.Declare(string)
+		v.Local.sInvNum.Declare(string)
+		v.Local.sInvDate.Declare(string)
+		v.Local.sInvDateGL.Declare(string)
+		v.Local.iBatchLineNumber.Declare(long,0)
+		v.Local.fAmount.Declare(float)
+		v.Local.sCustName.Declare(string)
+		v.Local.sErrorMsg.Declare(string)
+		v.Local.sErrorText.Declare(string)
+		v.Local.sTransDate.Declare(string)
+		v.Local.sNetAmt.Declare(string)
+		v.Local.sDiscountAmt.Declare(string)
+		
+		f.Intrinsic.UI.InvokeWaitDialog("Building data queue for upload","GCG 5740")
+		'Incoming file format:
+	'	       01 FIRST-UNION-DETAIL-RECORD.
+	'           03 DETAIL-RECORD-TYPE          PIC 9(1).
+	'           03 DETAIL-LOCKBOX-NO           PIC 9(7).
+	'           03 DETAIL-DEPOSIT-DATE         PIC 9(6).
+	'           03 DETAIL-BATCH-NO             PIC 9(3).
+	'           03 DETAIL-CUST-DDA             PIC 9(15).
+	'           03 DETAIL-ORIGIN               PIC 9(10).
+	'           03 DETAIL-CHECK-DATE-MM        PIC 9(2).
+	'           03 DETAIL-CHECK-DATE-DD        PIC 9(2).
+	'           03 DETAIL-CHECK-DATE-YY        PIC 9(2).
+	'           03 DETAIL-PAYEE-NAME           PIC X(26).
+	'           03 DETAIL-CHECK-AMT            PIC 9(8)V99.
+	'           03 DETAIL-CHECK-NO             PIC 9(8).
+	'           03 DETAIL-PAYOR-NAME           PIC X(26).
+	'           03 FILLER                      PIC X(15).
+	
+	'       01 FIRST-UNION-OVERFLOW-RECORD.
+	'           03 OVERFLOW-RECORD-TYPE        PIC 9(1).
+	'           03 OVERFLOW-BATCH-NUMBER       PIC 9(3).
+	'           03 OVERFLOW-OVERFLOW-SEQ-NO    PIC 9(2).
+	'           03 OVERFLOW-LAST-OVFL-FLAG     PIC 9(1).
+	'16INV      03 OVERFLOW-INVOICE-NO         PIC X(16).
+	'           03 OVERFLOW-INVOICE-DATE-MM    PIC 9(2).
+	'           03 OVERFLOW-INVOICE-DATE-DD    PIC 9(2).
+	'           03 OVERFLOW-INVOICE-DATE-YY    PIC 9(2).
+	'           03 OVERFLOW-DISCOUNT-AMT       PIC 9(6)V99.
+	'           03 OVERFLOW-NET-INVOICE-AMT    PIC S9(10)V99
+	'                                          TRAILING SEPARATE.
+	'16INV      03 FILLER                      PIC X(82).
+		
+		'Get the batch number to use
+		f.Intrinsic.Control.CallSub(getSingleBatchNumber)
+		
+		'Format the transaction date for aging
+		f.Intrinsic.string.Format(v.Ambient.Date,"mmddyy",v.Local.sTransDate)
+		
+		'Read in file to string
+		f.Intrinsic.File.File2String(v.Screen.f_Upload!txtFile.text,v.Local.sIncomingFile)
+		'f.Intrinsic.String.Split(v.Local.sIncomingFile,v.Ambient.,v.Local.sIncomingFile)
+		'Original position was 134
+		'f.Intrinsic.String.LimitSplit(v.Local.sIncomingFile,134,v.Local.sIncomingFile)
+		f.Intrinsic.String.Split(v.Local.sIncomingFile,v.ASCII.10,v.Local.sIncomingFile)
+		
+		'Loop through file and append contents to output string
+		f.Intrinsic.Control.For(v.Local.iCnt,0,v.Local.sIncomingFile.UBound,1)
+			F.Intrinsic.UI.ChangeWaitStatus("Building data queue for upload",V.Local.iCnt,0,v.Local.sIncomingFile.UBound)
+			F.Intrinsic.String.REPLACE(V.Local.sIncomingFile(V.Local.iCnt),V.Ambient.NewLine,"",V.Local.sIncomingFile(V.Local.iCnt))
+			f.Intrinsic.String.Left(v.Local.sIncomingFile(v.Local.iCnt),1,v.Local.sTemp)
+			v.Local.sErrorMsg.Set("")
+			'Logic on first character of the line:
+			'	6 = Header record
+			'	4 = Detail record
+			
+			f.Intrinsic.Control.If(v.Local.sTemp,=,"6")
+				'Get the check number
+				f.Intrinsic.String.Mid(v.Local.sIncomingFile(v.Local.iCnt),81,8,v.Local.sTemp)
+				f.Intrinsic.String.RPad(v.Local.sTemp," ",8,v.Local.sCheckNo)
+			f.Intrinsic.Control.Elseif(v.Local.sTemp,=,"4")
+				'Start new line
+				f.Intrinsic.Math.add(v.Local.iBatchLineNumber,1,v.Local.iBatchLineNumber)
+				f.Intrinsic.Control.If(v.Local.sText,!=,"")
+					f.Intrinsic.String.Build("{0}{1}",v.Local.sText,v.Ambient.NewLine,v.Local.sText)
+				f.Intrinsic.Control.EndIf
+				
+				'Write the invoice number
+				f.Intrinsic.String.Mid(v.Local.sIncomingFile(v.Local.iCnt),8,16,v.Local.sInvNum)
+				
+				'Get the customer name, convert it to the corresponding ID
+				f.Intrinsic.String.Build("select top 1 CUSTOMER from v_ar_open_items where invoice like '{0}%';",v.Local.sInvNum.Trim,v.Local.sSQL)
+				f.ODBC.Connection!con.opencompanyconnection
+					f.ODBC.Connection!CON.executeandreturn(v.Local.sSQL,v.Local.sCustID)
+				f.ODBC.Connection!con.close
+				
+				'Write the invoice date from the file
+				f.Intrinsic.String.Mid(v.Local.sIncomingFile(v.Local.iCnt),24,4,v.Local.sTemp)
+				f.Intrinsic.String.Build("{0}{1}",v.Local.sTemp.left2,v.Local.sTemp.right2,v.Local.sInvDate)
+				f.Intrinsic.String.Mid(v.Local.sIncomingFile(v.Local.iCnt),28,2,v.Local.sTemp)
+				f.Intrinsic.String.Build("20{0}{1}",v.Local.sTemp,v.Local.sInvDate,v.Local.sInvDateGL)
+				f.Intrinsic.String.Mid(v.Local.sIncomingFile(v.Local.iCnt),24,6,v.Local.sInvDate)
+				
+				'Write applied amount				
+				f.Intrinsic.String.Mid(v.Local.sIncomingFile(v.Local.iCnt),40,10,v.Local.sTemp)
+				f.Intrinsic.String.RTrim(v.Local.sTemp,v.Local.sTemp)
+				f.Intrinsic.String.Build("{0}.{1}",v.Local.sTemp.left8,v.Local.sTemp.right2,v.Local.sPayAmt)
+				'f.Intrinsic.String.Format(v.Local.sTemp,"####.00",v.Local.fAmount)
+				
+				'Subtract the discount amount from the invoice amt to get the net invoice amt
+				f.Intrinsic.Math.sub(v.Local.sNetInvAmt,v.Local.sDiscountAmt,v.Local.sNetInvAmt)
+				
+				'Get the net amount after payment is applied
+				f.Intrinsic.Math.Sub(v.Local.sNetInvAmt,v.Local.sPayAmt,v.Local.sNetAmt)
+				
+				'Check for errors:
+				'	Invoice amount must be greater than 0
+				f.Intrinsic.Control.If(v.Local.sPayAmt.Float,<,0)
+					f.Intrinsic.String.Build("Invoice {0} has a negative payment amount and cannot be processed as a credit in cash receipts.",v.Local.sInvNum.Trim,v.Local.sErrorMsg)
+					f.Data.DataTable.AddRow("dtErrors","InvNum",v.Local.sInvNum.Trim,"Customer",v.Local.sCustID,"InvDate",v.Local.sInvDate,"Amount",v.Local.sPayAmt,"ErrorMsg",v.Local.sErrorMsg)
+				f.Intrinsic.Control.ElseIf(v.local.sInvNum,=,"")
+					f.Intrinsic.String.Build("No invoice on row {0}",v.Local.iCnt.String,v.Local.sErrorMsg)
+					f.Data.DataTable.AddRow("dtErrors","InvNum",v.Local.sInvNum.Trim,"Customer",v.Local.sCustID,"InvDate",v.Local.sInvDate,"Amount",v.Local.sPayAmt,"ErrorMsg",v.Local.sErrorMsg)	
+				f.Intrinsic.Control.ElseIf(v.Local.sCustID,=,"")
+					f.Intrinsic.String.Build("Invoice {0} does not exist in AR open items.",v.Local.sInvNum.Trim,v.Local.sErrorMsg)
+					f.Data.DataTable.AddRow("dtErrors","InvNum",v.Local.sInvNum.Trim,"Customer",v.Local.sCustID,"InvDate",v.Local.sInvDate,"Amount",v.Local.sPayAmt,"ErrorMsg",v.Local.sErrorMsg)	
+				f.Intrinsic.Control.ElseIf(v.Local.sNetAmt,<,0)
+					f.Intrinsic.String.Build("Invoice {0} overpaid",v.Local.sInvNum.Trim,v.Local.sErrorMsg)
+					f.Data.DataTable.AddRow("dtErrors","InvNum",v.Local.sInvNum.Trim,"Customer",v.Local.sCustID,"InvDate",v.Local.sInvDate,"Amount",v.Local.sPayAmt,"ErrorMsg",v.Local.sErrorMsg)
+				f.Intrinsic.Control.Else
+					'Flip the sign from positive to negative to post the credit to AR Open Items
+					f.Intrinsic.String.Build("-{0}",v.Local.sPayAmt,v.Local.sPayAmt)
+					
+					'Write to UPLAROP
+					f.Data.DataTable.AddRow("UPLAROP", "CustNum", v.Local.sCustID, "InvNum", v.Local.sInvNum.LTrim,"TransCode", "11", "BatchNum",  v.Global.sSingleBatchNumber, "BatchLine", v.Local.iBatchLineNumber,"InvDate", v.Local.sInvDate, "InvTotal", v.Local.sPayAmt.float, "GLAcct", v.Global.sGLAccountCredit,"InvAmt",v.Local.sPayAmt.float,"TransDate",v.Local.sTransDate)
+					
+					'Write to GL batch
+					f.Intrinsic.Control.CallSub(writeUPLGDETL_File, passedCnt, v.Local.iCnt, passedGL, v.Global.sGLAccountCredit, passedTransType, "11", passedMult, 1, passedBatchNumber, v.Global.sSingleBatchNumber, InvoiceNumber, v.Local.sInvNum.LTrim, Amount, v.Local.sPayAmt.float,CustName, v.Local.sCustName, CustID, v.Local.sCustID, InvDate, v.Local.sInvDateGL,CheckNo,v.Local.sCheckNo)
+					f.Intrinsic.Control.CallSub(writeUPLGDETL_File, passedCnt, v.Local.iCnt, passedGL, v.screen.f_Upload!ddlCashAcct.Text, passedTransType, "11", passedMult, -1, passedBatchNumber, v.Global.sSingleBatchNumber, InvoiceNumber, v.Local.sInvNum.LTrim, Amount, v.Local.sPayAmt.float,CustName, v.Local.sCustName, CustID, v.Local.sCustID, InvDate, v.Local.sInvDateGL,CheckNo,v.Local.sCheckNo)
+				f.Intrinsic.Control.EndIf
+			f.Intrinsic.Control.EndIf
+		f.Intrinsic.Control.Next(v.Local.iCnt)
+		
+		'If some records were read in, process as batch
+		f.Intrinsic.Control.If(v.Global.sGL_Lines,!=,"")
+			F.Intrinsic.UI.ChangeWaitStatus("Uploading batch contents to AR and GL",0,0,2)
+			'Create the name for the file
+			f.Intrinsic.String.Build("{0}\GLDETAIL.TXT", v.Caller.FilesDir,V.Local.sFile)
+			F.Intrinsic.File.Exists(V.Local.sFile,V.Local.bExists)
+			F.Intrinsic.Control.If(V.Local.bExists,=,True)
+				F.Intrinsic.File.DeleteFile(V.Local.sFile)
+			F.Intrinsic.Control.EndIf
+			
+			'Export the text to a file
+			F.Intrinsic.File.String2File(V.Local.sFile,V.Global.sGL_Lines)
+			
+			'upload
+			F.Intrinsic.UI.ChangeWaitStatus("Uploading batch contents to AR and GL",1,0,2)
+			f.Intrinsic.Control.If(v.DataTable.UPLAROP.RowCount, >, 0)
+				f.Intrinsic.Control.CallSub(UPLAROPSync)
+			f.Intrinsic.Control.EndIf
+			
+			F.Intrinsic.UI.ChangeWaitStatus("Uploading batch contents to AR and GL",2,0,2)
+			'/U option runs the program screenless
+			f.Global.General.CallWrapperSync(50, "UPLGDETL/U")
+			'/A options runs with screens and the debug at the end
+			'f.Global.General.CallWrapperSync(50, "UPLGDETL/A")
+			
+			f.Intrinsic.UI.CloseWaitDialog
+			f.Intrinsic.String.Build("Batch {0} uploaded successfully.",v.Global.sSingleBatchNumber,v.Local.sSQL)
+			f.Intrinsic.UI.Msgbox(v.Local.sSQL,"Success")
+		f.Intrinsic.Control.EndIf
+		
+		'If any errors, write file
+		f.Intrinsic.Control.If(v.DataTable.dtErrors.RowCount,>,0)
+			v.Local.iCnt.Set(0)
+			f.Intrinsic.Control.For(v.Local.iCnt,0,v.DataTable.dtErrors.RowCount--,1)
+				f.Intrinsic.Control.If(v.Local.sErrorText,<>,"")
+					f.Intrinsic.String.Build("{0}{1}",v.Local.sErrorText,v.Ambient.NewLine,v.Local.sErrorText)
+				f.Intrinsic.Control.EndIf
+				f.Intrinsic.String.Build("{6}{0}{1}{2}{1}{3}{1}{4}{1}{5}",v.DataTable.dtErrors(v.Local.iCnt).InvDate!FieldValTrim,v.Ambient.Tab,v.DataTable.dtErrors(v.Local.iCnt).InvNum!FieldValTrim,v.DataTable.dtErrors(v.Local.iCnt).Amount!FieldValTrim,v.DataTable.dtErrors(v.Local.iCnt).Customer!FieldValTrim,v.DataTable.dtErrors(v.Local.iCnt).ErrorMsg!FieldValTrim,v.Local.sErrorText,v.Local.sErrorText)
+			f.Intrinsic.Control.Next(v.Local.iCnt)
+			f.Intrinsic.String.Build("*/*THE FOLLOWING ERRORS WERE ENCOUNTERED DURING PROCESSING:*/*{1}{1}Date{0}Invoice{0}Amount{0}Customer{0}ErrorDesc{1}{2}",",",v.Ambient.NewLine,v.Local.sErrorText,v.Local.sErrorText)
+			f.Intrinsic.String.DateString(v.Ambient.Date,v.Local.sTemp)
+			f.Intrinsic.String.TimeStringSec(v.Ambient.Time,v.Local.sText)
+			
+			f.Intrinsic.String.Build("{0}\{1}{2}Errors.txt",v.Global.sErrorFolder,v.Local.sTemp,v.Local.sText,v.Global.sErrorFolder)
+			f.Intrinsic.File.String2File(v.Global.sErrorFolder,v.Local.sErrorText)
+			'Open the file for the user to view contents
+			f.Intrinsic.Task.ShellExec(handle, "open",v.Global.sErrorFolder,"","", 0)
+		f.Intrinsic.Control.EndIf
+		
+		f.Intrinsic.Control.End
+	f.Intrinsic.Control.Catch
+		f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+	f.Intrinsic.Control.EndTry
+Program.Sub.CreateUpload_New.End
+
+Program.Sub.Listdir.Start
+v.Local.stemp.Declare(String)
+v.Local.sFilter.Declare(string)
+f.Intrinsic.Control.Try
+	'this sub is fired for each file listed in the directory.  Download file if it has not been processed before.
+	f.Intrinsic.String.Build("FileName='{0}'",v.Args.FileName,v.Local.sFilter)
+	f.Data.DataView.SetFilter("dtGLData","dvPastFiles",v.Local.sFilter)
+	f.Intrinsic.Control.If(v.DataView.dtPastFiles!dvPastFiles.RowCount,=,0)
+		f.Intrinsic.String.Build("{0}{1}",v.Global.sFilesPath,v.Args.filename,v.Local.stemp)
+		f.Communication.SFTP.SetProperty("RemoteFile",v.Args.filename)
+		f.Communication.SFTP.SetProperty("LocalFile",v.Local.stemp)
+		f.Communication.SFTP.SetProperty("TransferMode",2)
+		f.Communication.SFTP.SetProperty("Overwrite", true)
+		f.Communication.SFTP.Download
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Catch
+	f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+f.Intrinsic.Control.EndTry
+Program.Sub.Listdir.End
+
+Program.Sub.LogonSFTP.Start
+	f.Intrinsic.Control.Try
+		
+		'Pull down the file from SFTP site to CUSTOM folder
+		f.Communication.SFTP.SetProperty("SSHAcceptServerAuthentication","true")	
+		f.Communication.SFTP.SetProperty("remoteHost", "safetransvalidate.wellsfargo.com")
+		f.Communication.SFTP.SetProperty("USER", "jfw9ug8p")  	
+		f.Communication.SFTP.SetProperty("SSHCERTSTOREPASSWORD","")
+	 	f.Communication.SFTP.SetProperty("SSHCERTSTORE", "C:\Users\dduncan\Desktop\PK message.txt" )
+		f.Communication.SFTP.SetProperty("remotePort", 22)
+		f.Communication.SFTP.Logon
+		f.Communication.SFTP.SetProperty("RemotePath", "inbound/LINEP362_PMGR_1")
+		
+		'this will fire the event handler sub ListDir for each file listed in the folder
+		F.Communication.SFTP.list
+	f.Intrinsic.Control.Catch
+		f.Intrinsic.Control.CallSub(ErrorMsg, CurrentSub, v.Ambient.CurrentSubroutine)
+	f.Intrinsic.Control.EndTry
+Program.Sub.LogonSFTP.End
